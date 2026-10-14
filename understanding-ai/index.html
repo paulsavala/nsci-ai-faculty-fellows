@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Understand AI Better Than Your Students</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0F172A; --ink: #1E293B; --body: #475569; --muted: #94A3B8;
+    --rule: #CBD5E1; --card: #F1F5F9; --bg: #FAFBFC; --blue: #3B82F6; --blue-soft: #DBEAFE;
+    --green: #16A34A; --amber-bg: #FEF3C7; --amber-ink: #78350F; --red: #B91C1C;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { min-height: 100vh; align-items: flex-start; font-family: 'DM Sans', Arial, sans-serif; color: var(--body); background: var(--bg); display: flex; }
+  a { color: var(--blue); }
+
+  /* ---------- sidebar ---------- */
+  aside.sidebar { width: 300px; flex: none; background: var(--navy); color: #CBD5E1; height: 100vh; position: sticky; top: 0; overflow-y: auto; display: flex; flex-direction: column; }
+  .brand { padding: 28px 24px 20px; border-bottom: 1px solid #1E293B; }
+  .brand .bar { width: 40px; height: 4px; background: var(--blue); margin-bottom: 14px; }
+  .brand h1 { font-family: 'Playfair Display', Georgia, serif; color: #F8FAFC; font-size: 21px; line-height: 1.25; margin: 0 0 6px; }
+  .brand p { margin: 0; font-size: 13px; color: var(--muted); }
+  .profile { padding: 16px 24px; border-bottom: 1px solid #1E293B; }
+  .profile label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; }
+  .profile select, .profile input { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #334155; background: #1E293B; color: #F8FAFC; font: inherit; font-size: 14px; margin-bottom: 10px; }
+  .profile input.missing, .profile select.missing { border-color: #F87171; }
+  nav { padding: 12px 0 24px; flex: 1; }
+  .sec-btn { width: 100%; display: flex; gap: 12px; align-items: flex-start; padding: 12px 24px; background: none; border: none; color: #CBD5E1; text-align: left; font: inherit; font-size: 15px; cursor: pointer; }
+  .sec-btn:hover { background: #1E293B; }
+  .sec-btn .num { flex: none; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid #475569; display: grid; place-items: center; font-size: 12px; color: var(--muted); }
+  .sec-btn.done .num { background: var(--green); border-color: var(--green); color: white; }
+  .sec-btn .meta { display: block; font-size: 12px; color: #64748B; margin-top: 2px; }
+  .sec-btn.active { background: #1E293B; color: #F8FAFC; }
+  .sec-btn.active .num { border-color: var(--blue); color: #F8FAFC; }
+  .sec-btn.done.active .num { border-color: var(--green); }
+  .sub { display: none; padding: 2px 0 10px 62px; }
+  .sub.open { display: block; }
+  .sub a { display: block; padding: 6px 0; color: var(--muted); text-decoration: none; font-size: 14px; }
+  .sub a:hover { color: #93C5FD; }
+
+  /* ---------- main ---------- */
+  main { flex: 1; min-width: 0; padding: 48px 64px 96px; max-width: 1100px; }
+  .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); }
+  h2.title { font-family: 'Playfair Display', Georgia, serif; color: var(--ink); font-size: 40px; margin: 8px 0 8px; line-height: 1.15; }
+  .lede { font-size: 18px; margin: 0 0 32px; max-width: 760px; }
+  h3.block { font-family: 'Playfair Display', Georgia, serif; color: var(--ink); font-size: 26px; margin: 48px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--rule); display: flex; justify-content: space-between; align-items: baseline; gap: 12px; scroll-margin-top: 24px; }
+  h3.block small { font-family: 'DM Sans', Arial, sans-serif; font-size: 14px; color: var(--muted); font-weight: 400; }
+
+  .video { aspect-ratio: 16 / 9; background: var(--navy); border-radius: 14px; overflow: hidden; display: grid; place-items: center; color: var(--muted); }
+  .video iframe { width: 100%; height: 100%; border: 0; display: block; }
+  .slides-frame { width: 100%; height: 560px; border: 1px solid var(--rule); border-radius: 12px; background: white; display: block; }
+  .placeholder { border: 2px dashed var(--rule); border-radius: 12px; padding: 32px; text-align: center; color: var(--muted); }
+  .btn-link { display: inline-block; margin-top: 12px; font-size: 15px; text-decoration: none; font-weight: 500; }
+
+  .activity { background: white; border: 1px solid var(--rule); border-radius: 14px; padding: 28px 32px; }
+  .activity h4 { margin: 0 0 6px; font-size: 20px; color: var(--ink); }
+  .activity .instr { font-size: 16px; line-height: 1.55; margin: 0 0 8px; }
+  .prompt { display: block; font-family: 'Roboto Mono', monospace; font-size: 14px; background: var(--card); border-left: 4px solid var(--blue); padding: 10px 14px; border-radius: 6px; margin: 8px 0; color: var(--ink); white-space: pre-wrap; }
+  .seeds { font-size: 14px; color: var(--body); background: var(--card); border-radius: 10px; padding: 12px 16px; margin: 12px 0 20px; line-height: 1.5; }
+  .seeds b { color: var(--ink); }
+  .q { margin: 22px 0 0; }
+  .q label { display: block; font-weight: 500; color: var(--ink); margin-bottom: 8px; font-size: 16px; line-height: 1.4; }
+  .q textarea { width: 100%; min-height: 96px; padding: 12px 14px; border: 1px solid var(--rule); border-radius: 10px; font: inherit; font-size: 15px; color: var(--ink); resize: vertical; background: var(--bg); }
+  .q textarea:focus { outline: 2px solid var(--blue-soft); border-color: var(--blue); }
+  .part { font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin: 28px 0 0; }
+  .submit-row { display: flex; align-items: center; gap: 16px; margin-top: 24px; flex-wrap: wrap; }
+  .submit { background: var(--navy); color: white; border: none; border-radius: 10px; padding: 12px 22px; font: inherit; font-weight: 700; cursor: pointer; }
+  .submit:hover { background: #1E293B; }
+  .submit:disabled { opacity: 0.5; cursor: default; }
+  .status { font-size: 14px; }
+  .status.ok { color: var(--green); }
+  .status.err { color: var(--red); }
+  .nextbar { display: flex; justify-content: space-between; gap: 12px; margin-top: 40px; }
+  .nextbar button { background: none; border: 1px solid var(--rule); border-radius: 10px; padding: 10px 18px; font: inherit; color: var(--ink); cursor: pointer; }
+  .nextbar button:disabled { opacity: 0.35; cursor: default; }
+  .banner { background: var(--amber-bg); color: var(--amber-ink); font-size: 14px; padding: 10px 14px; border-radius: 10px; margin-bottom: 24px; }
+
+  @media (max-width: 860px) {
+    body { flex-direction: column; }
+    aside.sidebar { width: 100%; height: auto; position: static; }
+    main { padding: 28px 18px 80px; }
+    h2.title { font-size: 30px; }
+    .slides-frame { height: 420px; }
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="bar"></div>
+    <h1>Understand AI Better Than Your Students</h1>
+    <p>Science faculty workshop · Dr. Paul Savala</p>
+  </div>
+  <div class="profile">
+    <label for="name">Your name</label>
+    <input id="name" placeholder="First and last name" autocomplete="name">
+    <label for="dept">Department</label>
+    <select id="dept">
+      <option value="">Choose…</option>
+      <option>Biology</option><option>Computer Science</option><option>Mathematics</option>
+      <option>Kinesiology</option><option>Forensic Science</option><option>Other</option>
+    </select>
+  </div>
+  <nav id="nav"></nav>
+</aside>
+
+<main id="main"></main>
+
+<script>
+/* =====================================================================
+   CONFIGURATION: the only part you should need to edit.
+   ---------------------------------------------------------------------
+   SHEET_URL   The web-app URL from Google Apps Script (see README).
+               Leave "" to run without saving (answers stay in the browser).
+   youtubeId   The ID from the YouTube link: for
+               https://www.youtube.com/watch?v=AbC123xyz  ->  "AbC123xyz"
+   slidesPdf   Path to that section's slide PDF in this repo,
+               e.g. "slides/section-1.pdf". Leave "" until it exists.
+   slides      The slide range shown to faculty (just a label).
+   ===================================================================== */
+const SHEET_URL = "";
+
+const SECTIONS = [
+  { id: "s1", title: "How LLMs Write, and What They Read", mins: "~10 min", slides: "1–18",
+    youtubeId: "", slidesPdf: "",
+    lede: "The Human LLM activity, autoregressive generation, and how text becomes tokens.",
+    activity: {
+      name: "Tokenize your field",
+      instr: "Open <a href='https://platform.openai.com/tokenizer' target='_blank' rel='noopener'>platform.openai.com/tokenizer</a>. Paste in three short pieces of text from your field: (1) a single technical term, (2) a sentence you'd write in a paper or lecture, (3) something non-prose: a formula, code, a sequence, a measurement, or notation.",
+      seeds: "<b>Math:</b> “eigenvalue”, an integral in LaTeX · <b>CS:</b> a 3-line Python function · <b>Biology:</b> “BRCA1”, a short protein sequence · <b>Kinesiology:</b> “VO₂max”, “1RM” · <b>Forensic:</b> “epithelial”, “dactyloscopy”",
+      questions: [
+        "What did you paste in, and how many tokens did each become?",
+        "Which split surprised you most?",
+        "Is there anything in your field where the way text is chopped up might make it harder for a model to “see” what matters?"
+      ]
+    }
+  },
+  { id: "s2", title: "Neural Networks and Embeddings", mins: "~8 min", slides: "19–29",
+    youtubeId: "", slidesPdf: "",
+    lede: "Weights, layers, and how words become points in a space with thousands of dimensions.",
+    activity: {
+      name: "Words with a second life",
+      instr: "<b>Part A.</b> Think of words that mean something specific in your field but something different in everyday English.<br><b>Part B.</b> Pick one. Ask Gemini a short question that uses it <i>without</i> saying what field you're in. Then ask again, adding one sentence of context (for example, “I'm a mathematician working in category theory.”).",
+      seeds: "<b>Math:</b> category, field, ring, normal · <b>CS:</b> class, thread, cookie, inheritance · <b>Biology:</b> expression, culture, vector, translation · <b>Kinesiology:</b> load, power, fatigue · <b>Forensic:</b> trace, class, individualization",
+      parts: [
+        { label: "Part A: Your words", questions: [
+          "List 2–3 words. For each, give the everyday meaning and your field's meaning.",
+          "Which meaning do you think dominates the text online? Where might this cause trouble, for a model or a student?" ] },
+        { label: "Part B: The ambiguity test", questions: [
+          "What did you ask, and which meaning did Gemini assume the first time?",
+          "How much context did it take to get your meaning? What does this suggest about how students should prompt these tools?" ] }
+      ]
+    }
+  },
+  { id: "s3", title: "Learning the Weights", mins: "~9 min", slides: "30–46",
+    youtubeId: "", slidesPdf: "",
+    lede: "Guess, measure the error, turn the dials downhill, and repeat billions of times.",
+    activity: {
+      name: "Quick check",
+      instr: "One short question before we watch a real model learn.",
+      questions: [ "In your own words: why can't training just set each weight to its best value one at a time?" ]
+    }
+  },
+  { id: "s4", title: "Watching a Real Model Learn", mins: "~8 min", slides: "47–62",
+    youtubeId: "", slidesPdf: "",
+    lede: "Pythia goes from gibberish to Tokyo, Houston, Dallas, and finally Austin, and what that means for what models know.",
+    activity: {
+      name: "Is your field good next-word training data?",
+      instr: "Think about the text that exists online in your field: textbooks, papers, forums, lecture notes, code repositories, case reports.",
+      seeds: "Math has huge amounts of worked problems where each step follows from the last. Forensic case details are often confidential, and conclusions depend on physical evidence the text never shows. Kinesiology has lots of popular fitness content of very mixed quality.",
+      questions: [
+        "How much text exists in your field (1 = very little, 5 = enormous), and how reliable is it?",
+        "If you saw the first half of a typical passage in your field, how well could an expert predict the next sentence? Does the next step follow from what came before, or does it depend on information that never appears in the text?",
+        "One thing a model has probably learned well in your field, and one it probably hasn't:"
+      ]
+    }
+  },
+  { id: "s5", title: "Finetuning with Human Feedback", mins: "~7 min", slides: "63–70",
+    youtubeId: "", slidesPdf: "",
+    lede: "Supervised finetuning and RLHF: learning from human-written answers and human preferences.",
+    activity: {
+      name: "Could you write the answer key?",
+      instr: "Think of a typical question or task from your field, one you'd give a student or a junior colleague.",
+      seeds: "<b>Math:</b> a proof · <b>CS:</b> “design a system for X” · <b>Kinesiology:</b> a rehab plan for a specific client · <b>Forensic:</b> writing up conclusions from a scene",
+      questions: [
+        "What's the task? Could an expert write a single “ideal” response to it? Would two experts write roughly the same thing?",
+        "Given two responses, could you write a rubric that lets a trained person reliably pick the better one? What would be on it?",
+        "What parts of quality in your field are hard to put into a rubric?"
+      ]
+    }
+  },
+  { id: "s6", title: "Verifiable Rewards", mins: "~6 min", slides: "71–75",
+    youtubeId: "", slidesPdf: "",
+    lede: "Why math and code improved so fast, and why other fields may not.",
+    activity: {
+      name: "What can a computer check?",
+      instr: "List tasks from your field and sort them by whether a computer could automatically check the answer: by running code, checking a number, matching a known result, or logging a physical measurement.",
+      questions: [
+        "Two tasks where the answer can be checked automatically:",
+        "Two tasks where only an expert's judgment can say whether the answer is good:",
+        "For one of the judgment tasks: could any part of it be made checkable?"
+      ]
+    }
+  },
+  { id: "s7", title: "AI Agents", mins: "~6 min", slides: "76–79",
+    youtubeId: "", slidesPdf: "",
+    lede: "From answering to acting: what agents are, what they're good at, and what to ask them.",
+    activity: {
+      name: "Give an agent a job",
+      instr: "<b>Part A.</b> Run these three prompts in Gemini, each adding one more step. Use a topic from your own field for all three.",
+      prompts: [
+        "1. Find three recent papers on [your topic] and list their titles, authors, and years.",
+        "2. Find three recent papers on [your topic], then propose one new hypothesis that none of them tests and explain why it follows from their findings.",
+        "3. Find three recent papers on [your topic], propose a new hypothesis that none of them tests, and then make a table comparing the three papers' methods."
+      ],
+      seeds: "<b>Biology:</b> antibiotic resistance in soil bacteria · <b>CS:</b> LLMs for automated code review · <b>Math:</b> machine-learning-assisted theorem proving · <b>Kinesiology:</b> wearable sensors for injury prediction in runners · <b>Forensic:</b> error rates in latent fingerprint analysis",
+      parts: [
+        { label: "Part A: Build up the steps", questions: [
+          "Did it complete every step at each level? Check at least one cited paper: does it exist, and does it say what Gemini claimed?",
+          "Where did quality drop off as the chain got longer: finding, reasoning, or producing?" ] },
+        { label: "Part B: Your own tasks (write only, don't run)", questions: [
+          "List 2–3 real tasks from the past month that each took you more than an hour. For each: what is the task, and what would “done” look like (how would you check it)?",
+          "For each task: what would an agent need access to (files, email, a website, lab equipment, your judgment), and would you trust it: yes, no, or only with a human checking?" ] }
+      ]
+    }
+  },
+  { id: "s8", title: "AI in Science, and Wrap-up", mins: "~8 min", slides: "80–88",
+    youtubeId: "", slidesPdf: "",
+    lede: "Where AI is moving fast in science, why timelines are long, and how to think about it all.",
+    activity: {
+      name: "Where will AI move fast in your field?",
+      instr: "Using today's ideas (fast verification, tight feedback loops, abundant data), map out your field.",
+      questions: [
+        "Fast lane: what area of your field has quick, objective feedback, where AI could make real progress soon? Why?",
+        "Slow lane: what area depends on judgment, rare data, physical work, or long timelines? Why will AI struggle there?",
+        "Given those two lists, what should students in your field spend more time learning, and what less?"
+      ]
+    }
+  }
+];
+
+/* ===================================================================== */
+
+const STORE_KEY = "aiWorkshop.v1";
+const state = load();
+let current = Math.min(state.current || 0, SECTIONS.length - 1);
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { return {}; }
+}
+function save() {
+  state.current = current;
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* storage unavailable: fine */ }
+}
+state.answers = state.answers || {};
+state.done = state.done || [];
+state.sessionId = state.sessionId || (Date.now().toString(36) + Math.random().toString(36).slice(2, 8));
+
+const nameEl = document.getElementById("name");
+const deptEl = document.getElementById("dept");
+nameEl.value = state.name || "";
+deptEl.value = state.dept || "";
+nameEl.addEventListener("input", () => { state.name = nameEl.value; nameEl.classList.remove("missing"); save(); });
+deptEl.addEventListener("change", () => { state.dept = deptEl.value; deptEl.classList.remove("missing"); save(); });
+
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+function questionList(sec) {
+  const a = sec.activity, list = [];
+  if (a.parts) a.parts.forEach((p, pi) => p.questions.forEach((q, qi) => list.push({ key: `${sec.id}-p${pi}q${qi}`, text: q, part: p.label })));
+  else a.questions.forEach((q, qi) => list.push({ key: `${sec.id}-q${qi}`, text: q }));
+  return list;
+}
+
+function renderNav() {
+  document.getElementById("nav").innerHTML = SECTIONS.map((s, i) => {
+    const done = state.done.includes(s.id);
+    return `
+    <button class="sec-btn ${i === current ? "active" : ""} ${done ? "done" : ""}" onclick="go(${i})">
+      <span class="num">${done ? "✓" : i + 1}</span>
+      <span>${s.title}<span class="meta">${s.mins} · slides ${s.slides}</span></span>
+    </button>
+    <div class="sub ${i === current ? "open" : ""}">
+      <a href="#video" onclick="go(${i}, 'video'); return false;">▶ Video</a>
+      <a href="#slides" onclick="go(${i}, 'slides'); return false;">▤ Slides</a>
+      <a href="#activity" onclick="go(${i}, 'activity'); return false;">✎ Activity</a>
+    </div>`;
+  }).join("");
+}
+
+function renderMain() {
+  const s = SECTIONS[current], a = s.activity;
+  let lastPart = null, qs = "";
+  questionList(s).forEach(q => {
+    if (q.part && q.part !== lastPart) { qs += `<p class="part">${q.part}</p>`; lastPart = q.part; }
+    qs += `<div class="q"><label for="${q.key}">${q.text}</label>
+      <textarea id="${q.key}" data-key="${q.key}">${esc(state.answers[q.key] || "")}</textarea></div>`;
+  });
+
+  const video = s.youtubeId
+    ? `<div class="video"><iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(s.youtubeId)}?rel=0" title="${esc(s.title)} video" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`
+    : `<div class="video"><span>Video coming soon</span></div>`;
+
+  const slides = s.slidesPdf
+    ? `<iframe class="slides-frame" src="${encodeURI(s.slidesPdf)}" title="${esc(s.title)} slides"></iframe>
+       <a class="btn-link" href="${encodeURI(s.slidesPdf)}" target="_blank" rel="noopener">Open these slides in a new tab →</a>`
+    : `<div class="placeholder">Slides ${s.slides} coming soon</div>`;
+
+  document.getElementById("main").innerHTML = `
+    ${SHEET_URL ? "" : `<div class="banner">Saving isn't connected yet: answers are kept in this browser only.</div>`}
+    <div class="eyebrow">Section ${current + 1} of ${SECTIONS.length}</div>
+    <h2 class="title">${s.title}</h2>
+    <p class="lede">${s.lede}</p>
+
+    <h3 class="block" id="video">Video <small>${s.mins}</small></h3>
+    ${video}
+
+    <h3 class="block" id="slides">Slides <small>slides ${s.slides}</small></h3>
+    ${slides}
+
+    <h3 class="block" id="activity">Activity <small>about 5–8 min</small></h3>
+    <div class="activity">
+      <h4>${a.name}</h4>
+      <p class="instr">${a.instr}</p>
+      ${a.prompts ? a.prompts.map(p => `<span class="prompt">${esc(p)}</span>`).join("") : ""}
+      ${a.seeds ? `<div class="seeds">Stuck? Ideas: ${a.seeds}</div>` : ""}
+      ${qs}
+      <div class="submit-row">
+        <button class="submit" id="submitBtn" onclick="submitSection()">${state.done.includes(s.id) ? "Update answers" : "Submit answers"}</button>
+        <span class="status" id="status"></span>
+      </div>
+    </div>
+
+    <div class="nextbar">
+      <button ${current === 0 ? "disabled" : ""} onclick="go(${current - 1})">← Previous section</button>
+      <button ${current === SECTIONS.length - 1 ? "disabled" : ""} onclick="go(${current + 1})">Next section →</button>
+    </div>`;
+
+  document.querySelectorAll("textarea[data-key]").forEach(t =>
+    t.addEventListener("input", () => { state.answers[t.dataset.key] = t.value; save(); }));
+}
+
+function go(i, anchor) {
+  if (i !== current) { current = i; save(); renderNav(); renderMain(); }
+  if (anchor) document.getElementById(anchor).scrollIntoView({ behavior: "smooth", block: "start" });
+  else window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+async function submitSection() {
+  const s = SECTIONS[current];
+  const status = document.getElementById("status");
+  const btn = document.getElementById("submitBtn");
+  status.className = "status";
+
+  if (!state.name || !state.name.trim() || !state.dept) {
+    if (!state.name || !state.name.trim()) nameEl.classList.add("missing");
+    if (!state.dept) deptEl.classList.add("missing");
+    status.className = "status err";
+    status.textContent = "Please add your name and department in the sidebar first.";
+    (state.name ? deptEl : nameEl).focus();
+    return;
+  }
+
+  const rows = questionList(s).map(q => ({
+    section: `${current + 1}. ${s.title}`,
+    activity: s.activity.name,
+    part: q.part || "",
+    question: q.text,
+    answer: state.answers[q.key] || ""
+  }));
+  if (!rows.some(r => r.answer.trim())) {
+    status.className = "status err";
+    status.textContent = "Please answer at least one question before submitting.";
+    return;
+  }
+
+  if (SHEET_URL) {
+    btn.disabled = true;
+    status.textContent = "Saving…";
+    try {
+      // text/plain avoids a CORS preflight; Apps Script reads the body as JSON.
+      await fetch(SHEET_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ name: state.name.trim(), department: state.dept, sessionId: state.sessionId, rows })
+      });
+    } catch (e) {
+      btn.disabled = false;
+      status.className = "status err";
+      status.textContent = "Couldn't save. Check your connection and try again; your answers are still here.";
+      return;
+    }
+    btn.disabled = false;
+  }
+
+  if (!state.done.includes(s.id)) state.done.push(s.id);
+  save();
+  renderNav();
+  btn.textContent = "Update answers";
+  status.className = "status ok";
+  status.textContent = SHEET_URL ? "✓ Saved. Thank you!" : "✓ Saved in this browser (sheet not connected).";
+}
+
+renderNav();
+renderMain();
+</script>
+</body>
+</html>
