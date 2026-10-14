@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+._*
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# Raw source files that don't belong on the site
+# (keep the exported PDFs in each training's slides/ folder)
+*.pptx
+*.key
+*.mov
+*.mp4
+*.m4v
+
+# Local scratch
+.env
+tmp/

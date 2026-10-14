@@ -6,125 +6,26 @@
 <title>Understand AI Better Than Your Students</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --navy: #0F172A; --ink: #1E293B; --body: #475569; --muted: #94A3B8;
-    --rule: #CBD5E1; --card: #F1F5F9; --bg: #FAFBFC; --blue: #3B82F6; --blue-soft: #DBEAFE;
-    --green: #16A34A; --amber-bg: #FEF3C7; --amber-ink: #78350F; --red: #B91C1C;
-  }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; }
-  body { min-height: 100vh; align-items: flex-start; font-family: 'DM Sans', Arial, sans-serif; color: var(--body); background: var(--bg); display: flex; }
-  a { color: var(--blue); }
-
-  /* ---------- sidebar ---------- */
-  aside.sidebar { width: 300px; flex: none; background: var(--navy); color: #CBD5E1; height: 100vh; position: sticky; top: 0; overflow-y: auto; display: flex; flex-direction: column; }
-  .brand { padding: 28px 24px 20px; border-bottom: 1px solid #1E293B; }
-  .brand .bar { width: 40px; height: 4px; background: var(--blue); margin-bottom: 14px; }
-  .brand h1 { font-family: 'Playfair Display', Georgia, serif; color: #F8FAFC; font-size: 21px; line-height: 1.25; margin: 0 0 6px; }
-  .brand p { margin: 0; font-size: 13px; color: var(--muted); }
-  .profile { padding: 16px 24px; border-bottom: 1px solid #1E293B; }
-  .profile label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; }
-  .profile select, .profile input { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #334155; background: #1E293B; color: #F8FAFC; font: inherit; font-size: 14px; margin-bottom: 10px; }
-  .profile input.missing, .profile select.missing { border-color: #F87171; }
-  nav { padding: 12px 0 24px; flex: 1; }
-  .sec-btn { width: 100%; display: flex; gap: 12px; align-items: flex-start; padding: 12px 24px; background: none; border: none; color: #CBD5E1; text-align: left; font: inherit; font-size: 15px; cursor: pointer; }
-  .sec-btn:hover { background: #1E293B; }
-  .sec-btn .num { flex: none; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid #475569; display: grid; place-items: center; font-size: 12px; color: var(--muted); }
-  .sec-btn.done .num { background: var(--green); border-color: var(--green); color: white; }
-  .sec-btn .meta { display: block; font-size: 12px; color: #64748B; margin-top: 2px; }
-  .sec-btn.active { background: #1E293B; color: #F8FAFC; }
-  .sec-btn.active .num { border-color: var(--blue); color: #F8FAFC; }
-  .sec-btn.done.active .num { border-color: var(--green); }
-  .sub { display: none; padding: 2px 0 10px 62px; }
-  .sub.open { display: block; }
-  .sub a { display: block; padding: 6px 0; color: var(--muted); text-decoration: none; font-size: 14px; }
-  .sub a:hover { color: #93C5FD; }
-
-  /* ---------- main ---------- */
-  main { flex: 1; min-width: 0; padding: 48px 64px 96px; max-width: 1100px; }
-  .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); }
-  h2.title { font-family: 'Playfair Display', Georgia, serif; color: var(--ink); font-size: 40px; margin: 8px 0 8px; line-height: 1.15; }
-  .lede { font-size: 18px; margin: 0 0 32px; max-width: 760px; }
-  h3.block { font-family: 'Playfair Display', Georgia, serif; color: var(--ink); font-size: 26px; margin: 48px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--rule); display: flex; justify-content: space-between; align-items: baseline; gap: 12px; scroll-margin-top: 24px; }
-  h3.block small { font-family: 'DM Sans', Arial, sans-serif; font-size: 14px; color: var(--muted); font-weight: 400; }
-
-  .video { aspect-ratio: 16 / 9; background: var(--navy); border-radius: 14px; overflow: hidden; display: grid; place-items: center; color: var(--muted); }
-  .video iframe { width: 100%; height: 100%; border: 0; display: block; }
-  .slides-frame { width: 100%; height: 560px; border: 1px solid var(--rule); border-radius: 12px; background: white; display: block; }
-  .placeholder { border: 2px dashed var(--rule); border-radius: 12px; padding: 32px; text-align: center; color: var(--muted); }
-  .btn-link { display: inline-block; margin-top: 12px; font-size: 15px; text-decoration: none; font-weight: 500; }
-
-  .activity { background: white; border: 1px solid var(--rule); border-radius: 14px; padding: 28px 32px; }
-  .activity h4 { margin: 0 0 6px; font-size: 20px; color: var(--ink); }
-  .activity .instr { font-size: 16px; line-height: 1.55; margin: 0 0 8px; }
-  .prompt { display: block; font-family: 'Roboto Mono', monospace; font-size: 14px; background: var(--card); border-left: 4px solid var(--blue); padding: 10px 14px; border-radius: 6px; margin: 8px 0; color: var(--ink); white-space: pre-wrap; }
-  .seeds { font-size: 14px; color: var(--body); background: var(--card); border-radius: 10px; padding: 12px 16px; margin: 12px 0 20px; line-height: 1.5; }
-  .seeds b { color: var(--ink); }
-  .q { margin: 22px 0 0; }
-  .q label { display: block; font-weight: 500; color: var(--ink); margin-bottom: 8px; font-size: 16px; line-height: 1.4; }
-  .q textarea { width: 100%; min-height: 96px; padding: 12px 14px; border: 1px solid var(--rule); border-radius: 10px; font: inherit; font-size: 15px; color: var(--ink); resize: vertical; background: var(--bg); }
-  .q textarea:focus { outline: 2px solid var(--blue-soft); border-color: var(--blue); }
-  .part { font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin: 28px 0 0; }
-  .submit-row { display: flex; align-items: center; gap: 16px; margin-top: 24px; flex-wrap: wrap; }
-  .submit { background: var(--navy); color: white; border: none; border-radius: 10px; padding: 12px 22px; font: inherit; font-weight: 700; cursor: pointer; }
-  .submit:hover { background: #1E293B; }
-  .submit:disabled { opacity: 0.5; cursor: default; }
-  .status { font-size: 14px; }
-  .status.ok { color: var(--green); }
-  .status.err { color: var(--red); }
-  .nextbar { display: flex; justify-content: space-between; gap: 12px; margin-top: 40px; }
-  .nextbar button { background: none; border: 1px solid var(--rule); border-radius: 10px; padding: 10px 18px; font: inherit; color: var(--ink); cursor: pointer; }
-  .nextbar button:disabled { opacity: 0.35; cursor: default; }
-  .banner { background: var(--amber-bg); color: var(--amber-ink); font-size: 14px; padding: 10px 14px; border-radius: 10px; margin-bottom: 24px; }
-
-  @media (max-width: 860px) {
-    body { flex-direction: column; }
-    aside.sidebar { width: 100%; height: auto; position: static; }
-    main { padding: 28px 18px 80px; }
-    h2.title { font-size: 30px; }
-    .slides-frame { height: 420px; }
-  }
-</style>
+<link rel="stylesheet" href="../shared/workshop.css">
 </head>
 <body>
-
-<aside class="sidebar">
-  <div class="brand">
-    <div class="bar"></div>
-    <h1>Understand AI Better Than Your Students</h1>
-    <p>Science faculty workshop · Dr. Paul Savala</p>
-  </div>
-  <div class="profile">
-    <label for="name">Your name</label>
-    <input id="name" placeholder="First and last name" autocomplete="name">
-    <label for="dept">Department</label>
-    <select id="dept">
-      <option value="">Choose…</option>
-      <option>Biology</option><option>Computer Science</option><option>Mathematics</option>
-      <option>Kinesiology</option><option>Forensic Science</option><option>Other</option>
-    </select>
-  </div>
-  <nav id="nav"></nav>
-</aside>
-
-<main id="main"></main>
-
+<script src="../shared/site-config.js"></script>
 <script>
 /* =====================================================================
-   CONFIGURATION: the only part you should need to edit.
+   THIS TRAINING'S CONTENT: the only part to edit for this page.
    ---------------------------------------------------------------------
-   SHEET_URL   The web-app URL from Google Apps Script (see README).
-               Leave "" to run without saving (answers stay in the browser).
    youtubeId   The ID from the YouTube link: for
                https://www.youtube.com/watch?v=AbC123xyz  ->  "AbC123xyz"
-   slidesPdf   Path to that section's slide PDF in this repo,
+   slidesPdf   Path to that section's slide PDF, relative to this folder,
                e.g. "slides/section-1.pdf". Leave "" until it exists.
    slides      The slide range shown to faculty (just a label).
+   The Google Sheet address lives in ../shared/site-config.js.
    ===================================================================== */
-const SHEET_URL = "";
-
-const SECTIONS = [
+window.TRAINING = {
+  id: "understanding-ai",
+  title: "Understand AI Better Than Your Students",
+  subtitle: "Science faculty workshop",
+  sections: [
   { id: "s1", title: "How LLMs Write, and What They Read", mins: "~10 min", slides: "1–18",
     youtubeId: "", slidesPdf: "",
     lede: "The Human LLM activity, autoregressive generation, and how text becomes tokens.",
@@ -241,173 +142,9 @@ const SECTIONS = [
       ]
     }
   }
-];
-
-/* ===================================================================== */
-
-const STORE_KEY = "aiWorkshop.v1";
-const state = load();
-let current = Math.min(state.current || 0, SECTIONS.length - 1);
-
-function load() {
-  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { return {}; }
-}
-function save() {
-  state.current = current;
-  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* storage unavailable: fine */ }
-}
-state.answers = state.answers || {};
-state.done = state.done || [];
-state.sessionId = state.sessionId || (Date.now().toString(36) + Math.random().toString(36).slice(2, 8));
-
-const nameEl = document.getElementById("name");
-const deptEl = document.getElementById("dept");
-nameEl.value = state.name || "";
-deptEl.value = state.dept || "";
-nameEl.addEventListener("input", () => { state.name = nameEl.value; nameEl.classList.remove("missing"); save(); });
-deptEl.addEventListener("change", () => { state.dept = deptEl.value; deptEl.classList.remove("missing"); save(); });
-
-function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
-
-function questionList(sec) {
-  const a = sec.activity, list = [];
-  if (a.parts) a.parts.forEach((p, pi) => p.questions.forEach((q, qi) => list.push({ key: `${sec.id}-p${pi}q${qi}`, text: q, part: p.label })));
-  else a.questions.forEach((q, qi) => list.push({ key: `${sec.id}-q${qi}`, text: q }));
-  return list;
-}
-
-function renderNav() {
-  document.getElementById("nav").innerHTML = SECTIONS.map((s, i) => {
-    const done = state.done.includes(s.id);
-    return `
-    <button class="sec-btn ${i === current ? "active" : ""} ${done ? "done" : ""}" onclick="go(${i})">
-      <span class="num">${done ? "✓" : i + 1}</span>
-      <span>${s.title}<span class="meta">${s.mins} · slides ${s.slides}</span></span>
-    </button>
-    <div class="sub ${i === current ? "open" : ""}">
-      <a href="#video" onclick="go(${i}, 'video'); return false;">▶ Video</a>
-      <a href="#slides" onclick="go(${i}, 'slides'); return false;">▤ Slides</a>
-      <a href="#activity" onclick="go(${i}, 'activity'); return false;">✎ Activity</a>
-    </div>`;
-  }).join("");
-}
-
-function renderMain() {
-  const s = SECTIONS[current], a = s.activity;
-  let lastPart = null, qs = "";
-  questionList(s).forEach(q => {
-    if (q.part && q.part !== lastPart) { qs += `<p class="part">${q.part}</p>`; lastPart = q.part; }
-    qs += `<div class="q"><label for="${q.key}">${q.text}</label>
-      <textarea id="${q.key}" data-key="${q.key}">${esc(state.answers[q.key] || "")}</textarea></div>`;
-  });
-
-  const video = s.youtubeId
-    ? `<div class="video"><iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(s.youtubeId)}?rel=0" title="${esc(s.title)} video" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`
-    : `<div class="video"><span>Video coming soon</span></div>`;
-
-  const slides = s.slidesPdf
-    ? `<iframe class="slides-frame" src="${encodeURI(s.slidesPdf)}" title="${esc(s.title)} slides"></iframe>
-       <a class="btn-link" href="${encodeURI(s.slidesPdf)}" target="_blank" rel="noopener">Open these slides in a new tab →</a>`
-    : `<div class="placeholder">Slides ${s.slides} coming soon</div>`;
-
-  document.getElementById("main").innerHTML = `
-    ${SHEET_URL ? "" : `<div class="banner">Saving isn't connected yet: answers are kept in this browser only.</div>`}
-    <div class="eyebrow">Section ${current + 1} of ${SECTIONS.length}</div>
-    <h2 class="title">${s.title}</h2>
-    <p class="lede">${s.lede}</p>
-
-    <h3 class="block" id="video">Video <small>${s.mins}</small></h3>
-    ${video}
-
-    <h3 class="block" id="slides">Slides <small>slides ${s.slides}</small></h3>
-    ${slides}
-
-    <h3 class="block" id="activity">Activity <small>about 5–8 min</small></h3>
-    <div class="activity">
-      <h4>${a.name}</h4>
-      <p class="instr">${a.instr}</p>
-      ${a.prompts ? a.prompts.map(p => `<span class="prompt">${esc(p)}</span>`).join("") : ""}
-      ${a.seeds ? `<div class="seeds">Stuck? Ideas: ${a.seeds}</div>` : ""}
-      ${qs}
-      <div class="submit-row">
-        <button class="submit" id="submitBtn" onclick="submitSection()">${state.done.includes(s.id) ? "Update answers" : "Submit answers"}</button>
-        <span class="status" id="status"></span>
-      </div>
-    </div>
-
-    <div class="nextbar">
-      <button ${current === 0 ? "disabled" : ""} onclick="go(${current - 1})">← Previous section</button>
-      <button ${current === SECTIONS.length - 1 ? "disabled" : ""} onclick="go(${current + 1})">Next section →</button>
-    </div>`;
-
-  document.querySelectorAll("textarea[data-key]").forEach(t =>
-    t.addEventListener("input", () => { state.answers[t.dataset.key] = t.value; save(); }));
-}
-
-function go(i, anchor) {
-  if (i !== current) { current = i; save(); renderNav(); renderMain(); }
-  if (anchor) document.getElementById(anchor).scrollIntoView({ behavior: "smooth", block: "start" });
-  else window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-async function submitSection() {
-  const s = SECTIONS[current];
-  const status = document.getElementById("status");
-  const btn = document.getElementById("submitBtn");
-  status.className = "status";
-
-  if (!state.name || !state.name.trim() || !state.dept) {
-    if (!state.name || !state.name.trim()) nameEl.classList.add("missing");
-    if (!state.dept) deptEl.classList.add("missing");
-    status.className = "status err";
-    status.textContent = "Please add your name and department in the sidebar first.";
-    (state.name ? deptEl : nameEl).focus();
-    return;
-  }
-
-  const rows = questionList(s).map(q => ({
-    section: `${current + 1}. ${s.title}`,
-    activity: s.activity.name,
-    part: q.part || "",
-    question: q.text,
-    answer: state.answers[q.key] || ""
-  }));
-  if (!rows.some(r => r.answer.trim())) {
-    status.className = "status err";
-    status.textContent = "Please answer at least one question before submitting.";
-    return;
-  }
-
-  if (SHEET_URL) {
-    btn.disabled = true;
-    status.textContent = "Saving…";
-    try {
-      // text/plain avoids a CORS preflight; Apps Script reads the body as JSON.
-      await fetch(SHEET_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ name: state.name.trim(), department: state.dept, sessionId: state.sessionId, rows })
-      });
-    } catch (e) {
-      btn.disabled = false;
-      status.className = "status err";
-      status.textContent = "Couldn't save. Check your connection and try again; your answers are still here.";
-      return;
-    }
-    btn.disabled = false;
-  }
-
-  if (!state.done.includes(s.id)) state.done.push(s.id);
-  save();
-  renderNav();
-  btn.textContent = "Update answers";
-  status.className = "status ok";
-  status.textContent = SHEET_URL ? "✓ Saved. Thank you!" : "✓ Saved in this browser (sheet not connected).";
-}
-
-renderNav();
-renderMain();
+]
+};
 </script>
+<script src="../shared/workshop.js"></script>
 </body>
 </html>

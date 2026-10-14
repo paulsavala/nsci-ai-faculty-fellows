@@ -1,11 +1,11 @@
 /**
- * Google Apps Script for the workshop site.
- * Receives answers from the web page and adds one row per question
- * to the sheet named "Responses". See README.md for setup steps.
+ * Google Apps Script that collects answers from every training page.
+ * Each submission adds one row per question to the sheet named "Responses".
+ * See README.md for setup steps.
  */
 
 const SHEET_NAME = "Responses";
-const HEADERS = ["Timestamp", "Name", "Department", "Section", "Activity", "Part", "Question", "Answer", "Session ID"];
+const HEADERS = ["Timestamp", "Training", "Name", "Department", "Section", "Activity", "Part", "Question", "Answer", "Session ID"];
 
 function doPost(e) {
   const lock = LockService.getScriptLock();
@@ -16,6 +16,7 @@ function doPost(e) {
     const now = new Date();
     const rows = (data.rows || []).map(r => [
       now,
+      clean_(data.training),
       clean_(data.name),
       clean_(data.department),
       clean_(r.section),
@@ -40,7 +41,7 @@ function doPost(e) {
 
 // Visiting the web-app URL in a browser shows this, which confirms it's deployed.
 function doGet() {
-  return ContentService.createTextOutput("Workshop response collector is running.");
+  return ContentService.createTextOutput("Training response collector is running.");
 }
 
 function getSheet_() {
