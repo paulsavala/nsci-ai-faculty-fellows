@@ -1,6 +1,6 @@
 # NSCI AI Faculty Fellows: training site
 
-Self-paced trainings for science faculty. Each training is a folder with its own page; they all share one look, one engine, and one Google Sheet for answers.
+Self-paced trainings for the NSCI Faculty Workshop. Each training is a folder with its own page; they all share one look, one engine, and one Google Sheet for answers.
 
 ```
 index.html                 home page: one card per training
@@ -43,19 +43,26 @@ Everything for a training is in its `index.html`, in the block marked **THIS TRA
   ```js
   youtubeId: "AbC123xyz",
   ```
-- **Slides:** export one PDF per section into that training's `slides/` folder and set `slidesPdf: "slides/section-1.pdf"`. Update the `slides: "1–18"` label to match.
+- **Slides:** export one PDF per section into that training's `slides/` folder and set `slidesPdf: "slides/section-1.pdf"`. Update the `slides: "1–11"` label to match. Put the whole deck in the same folder and set `fullSlidesPdf: "slides/all-slides.pdf"`; it shows up as a button in the sidebar.
 
-## 3. Add a new training
+## 3. Other people's answers
+
+Each training page has an **Others' answers** sidebar on the right, collapsed by default. It shows everyone's latest answers for the current section, without names or departments. It loads from the same Google Sheet, so it works once the sheet is connected.
+
+- **Hiding an answer:** type anything (for example, `x`) in that row's **Hide** column in the sheet. It disappears from the sidebar within a minute.
+- **Answers from before this feature** don't have a **Question ID** and won't appear in the sidebar. They're still in the sheet.
+
+## 4. Add a new training
 
 1. Copy the `understanding-ai/` folder and rename it (for example, `prompting-for-research/`).
 2. In the new `index.html`, change `id` (must be unique: it keeps each training's saved answers separate), `title`, `subtitle`, and the `sections` list.
 3. On the home page (`index.html` at the top level), copy a card and point it at the new folder.
 
-## 4. Publishing
+## 5. Publishing
 
 GitHub Pages serves this repo directly: **Settings → Pages → Deploy from a branch → main / (root)**. After a push, the live site updates within a minute or two.
 
 ## Notes
 
 - **Answers are also kept in each person's browser** (per training), so they can close the tab and come back. Name and department carry over between trainings.
-- **The web-app URL is visible in the page source.** Anyone who finds it could add rows to the sheet. That's fine for a faculty workshop; if spam ever shows up, deploy a new version and update the URL.
+- **The web-app URL is visible in the page source.** Anyone who finds it could add rows to the sheet, or read the same anonymous answers the sidebar shows (never names or departments). That's fine for a faculty workshop; if spam ever shows up, deploy a new version and update the URL.

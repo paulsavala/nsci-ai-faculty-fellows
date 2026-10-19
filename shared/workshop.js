@@ -19,6 +19,7 @@
         <div class="bar"></div>
         <h1>${T.title}</h1>
         <p>${T.subtitle || ""}${SITE.presenter ? ` · ${SITE.presenter}` : ""}</p>
+        ${T.fullSlidesPdf ? `<a class="all-slides" href="${encodeURI(T.fullSlidesPdf)}" target="_blank" rel="noopener">▤ All slides in one PDF</a>` : ""}
       </div>
       <div class="profile">
         <label for="name">Your name</label>
@@ -28,7 +29,25 @@
       </div>
       <nav id="nav"></nav>
     </aside>
-    <main id="main"></main>`;
+    <main id="main"></main>
+    ${SHEET_URL ? `
+    <aside class="others" id="others">
+      <button class="others-rail" id="othersRail" aria-controls="othersBody" aria-expanded="false">
+        <span class="others-rail-label">Others' answers</span>
+        <span class="others-count" id="othersCount"></span>
+      </button>
+      <div class="others-body" id="othersBody">
+        <div class="others-head">
+          <div>
+            <div class="others-eyebrow" id="othersSection"></div>
+            <h3>How others answered</h3>
+            <p>Shown without names or departments.</p>
+          </div>
+          <button class="others-close" id="othersClose" aria-label="Close">×</button>
+        </div>
+        <div class="others-list" id="othersList"></div>
+      </div>
+    </aside>` : ""}`;
 
   /* ---------- saved state (per training, per browser) ---------- */
   function load() { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { return {}; } }
@@ -60,6 +79,10 @@
   deptEl.addEventListener("change", () => { state.dept = deptEl.value; deptEl.classList.remove("missing"); save(); });
 
   /* ---------- helpers ---------- */
+  // Link tool names wherever they appear on screen (the sheet keeps the plain text).
+  function linkTools(html) {
+    return String(html).replace(/\bGemini\b/g, `<a href="https://gemini.google.com" target="_blank" rel="noopener">Gemini</a>`);
+  }
   function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
   function secId(i) { return SECTIONS[i].id || "s" + (i + 1); }
 
@@ -92,7 +115,7 @@
     let lastPart = null, qs = "";
     questionList(current).forEach(q => {
       if (q.part && q.part !== lastPart) { qs += `<p class="part">${q.part}</p>`; lastPart = q.part; }
-      qs += `<div class="q"><label for="${q.key}">${q.text}</label>
+      qs += `<div class="q"><label for="${q.key}">${linkTools(q.text)}</label>
         <textarea id="${q.key}" data-key="${q.key}">${esc(state.answers[q.key] || "")}</textarea></div>`;
     });
 
@@ -121,7 +144,7 @@
       <h3 class="block" id="activity">Activity <small>${a.time || "about 5–8 min"}</small></h3>
       <div class="activity">
         <h4>${a.name}</h4>
-        ${a.instr ? `<p class="instr">${a.instr}</p>` : ""}
+        ${a.instr ? `<p class="instr">${linkTools(a.instr)}</p>` : ""}
         ${a.prompts ? a.prompts.map(p => `<span class="prompt">${esc(p)}</span>`).join("") : ""}
         ${a.seeds ? `<div class="seeds">Stuck? Ideas: ${a.seeds}</div>` : ""}
         ${qs}
@@ -129,6 +152,7 @@
           <button class="submit" id="submitBtn">${isDone ? "Update answers" : "Submit answers"}</button>
           <span class="status" id="status"></span>
         </div>
+        ${SHEET_URL ? `<button class="others-link" data-others-open>See how others answered →</button>` : ""}
       </div>
 
       <div class="nextbar">
@@ -139,6 +163,62 @@
     document.querySelectorAll("textarea[data-key]").forEach(t =>
       t.addEventListener("input", () => { state.answers[t.dataset.key] = t.value; save(); }));
     document.getElementById("submitBtn").addEventListener("click", submitSection);
+    loadOthers();
+  }
+
+  /* ---------- right sidebar: other people's answers for this section ---------- */
+  const OPEN_KEY = "nsciTrainings.othersOpen";
+  const othersEl = document.getElementById("others");
+  const othersCache = {}; // section index -> last response, so flipping back is instant
+
+  function setOthersOpen(open) {
+    if (!othersEl) return;
+    othersEl.classList.toggle("open", open);
+    document.getElementById("othersRail").setAttribute("aria-expanded", open);
+    try { localStorage.setItem(OPEN_KEY, open ? "1" : ""); } catch (e) { /* storage unavailable */ }
+  }
+
+  async function loadOthers(fresh) {
+    if (!othersEl) return;
+    const i = current;
+    document.getElementById("othersSection").textContent = `Section ${i + 1} · ${SECTIONS[i].activity.name}`;
+    if (othersCache[i] && !fresh) return drawOthers(i, othersCache[i]);
+    drawOthers(i, null);
+    let data;
+    try {
+      const res = await fetch(`${SHEET_URL}?section=${encodeURIComponent(T.id + "/" + secId(i))}`);
+      data = await res.json();
+    } catch (e) { data = { ok: false }; }
+    if (data.ok) othersCache[i] = data;
+    if (i === current) drawOthers(i, data); // skip if they moved on while it loaded
+  }
+
+  function drawOthers(i, data) {
+    const list = document.getElementById("othersList");
+    const count = document.getElementById("othersCount");
+    if (!data) { count.textContent = "…"; list.innerHTML = `<p class="others-note">Loading…</p>`; return; }
+    if (!data.ok) { count.textContent = ""; list.innerHTML = `<p class="others-note">Couldn't load answers right now. Please try again in a minute.</p>`; return; }
+    count.textContent = data.people;
+    if (!data.people) { list.innerHTML = `<p class="others-note">No one has submitted answers for this section yet. Check back later.</p>`; return; }
+
+    let html = `<p class="others-note">${data.people} ${data.people === 1 ? "person has" : "people have"} answered.</p>`;
+    let lastPart = null;
+    questionList(i).forEach(q => {
+      const answers = (data.answers || {})[q.key] || [];
+      if (q.part && q.part !== lastPart) { html += `<p class="part">${q.part}</p>`; lastPart = q.part; }
+      html += `<div class="others-q"><h4>${linkTools(q.text)}</h4>
+        ${answers.length ? answers.map(a => `<blockquote>${esc(a)}</blockquote>`).join("") : `<p class="others-note">No answers yet.</p>`}</div>`;
+    });
+    list.innerHTML = html;
+  }
+
+  if (othersEl) {
+    document.getElementById("othersRail").addEventListener("click", () => setOthersOpen(!othersEl.classList.contains("open")));
+    document.getElementById("othersClose").addEventListener("click", () => setOthersOpen(false));
+    document.addEventListener("click", e => { if (e.target.closest("[data-others-open]")) setOthersOpen(true); });
+    let wasOpen = false;
+    try { wasOpen = !!localStorage.getItem(OPEN_KEY); } catch (e) { /* storage unavailable */ }
+    setOthersOpen(wasOpen);
   }
 
   function go(i, anchor) {
@@ -175,6 +255,7 @@
       activity: s.activity.name,
       part: q.part || "",
       question: q.text,
+      questionId: T.id + "/" + q.key,
       answer: state.answers[q.key] || ""
     }));
     if (!rows.some(r => r.answer.trim())) {
@@ -212,6 +293,7 @@
     btn.textContent = "Update answers";
     status.className = "status ok";
     status.textContent = SHEET_URL ? "✓ Saved. Thank you!" : "✓ Saved in this browser (sheet not connected).";
+    loadOthers(true);
   }
 
   renderNav();
