@@ -37,11 +37,12 @@
         <span class="others-count" id="othersCount"></span>
       </button>
       <div class="others-body" id="othersBody">
+        <div class="others-resize" id="othersResize" role="separator" aria-orientation="vertical" aria-label="Drag to resize" title="Drag to resize"></div>
         <div class="others-head">
           <div>
             <div class="others-eyebrow" id="othersSection"></div>
             <h3>How others answered</h3>
-            <p>Shown without names or departments.</p>
+            <p>Grouped by department. Names are never shown.</p>
           </div>
           <button class="others-close" id="othersClose" aria-label="Close">×</button>
         </div>
@@ -186,30 +187,60 @@
     drawOthers(i, null);
     let data;
     try {
-      const res = await fetch(`${SHEET_URL}?section=${encodeURIComponent(T.id + "/" + secId(i))}`);
+      const res = await fetch(`${SHEET_URL}?section=${encodeURIComponent(T.id + "/" + secId(i))}&me=${encodeURIComponent(state.sessionId)}`);
       data = await res.json();
     } catch (e) { data = { ok: false }; }
     if (data.ok) othersCache[i] = data;
     if (i === current) drawOthers(i, data); // skip if they moved on while it loaded
   }
 
+  // Department → person → that person's answers, each level collapsed until clicked.
   function drawOthers(i, data) {
     const list = document.getElementById("othersList");
     const count = document.getElementById("othersCount");
     if (!data) { count.textContent = "…"; list.innerHTML = `<p class="others-note">Loading…</p>`; return; }
     if (!data.ok) { count.textContent = ""; list.innerHTML = `<p class="others-note">Couldn't load answers right now. Please try again in a minute.</p>`; return; }
-    count.textContent = data.people;
-    if (!data.people) { list.innerHTML = `<p class="others-note">No one has submitted answers for this section yet. Check back later.</p>`; return; }
+    const people = data.people || [];
+    count.textContent = people.length;
+    if (!people.length) { list.innerHTML = `<p class="others-note">No one has submitted answers for this section yet. Check back later.</p>`; return; }
 
-    let html = `<p class="others-note">${data.people} ${data.people === 1 ? "person has" : "people have"} answered.</p>`;
-    let lastPart = null;
-    questionList(i).forEach(q => {
-      const answers = (data.answers || {})[q.key] || [];
-      if (q.part && q.part !== lastPart) { html += `<p class="part">${q.part}</p>`; lastPart = q.part; }
-      html += `<div class="others-q"><h4>${linkTools(q.text)}</h4>
-        ${answers.length ? answers.map(a => `<blockquote>${esc(a)}</blockquote>`).join("") : `<p class="others-note">No answers yet.</p>`}</div>`;
+    // keep whatever was expanded when the list refreshes (e.g. after submitting)
+    const wasOpen = list.dataset.section === String(i)
+      ? new Set([...list.querySelectorAll("details[open]")].map(d => d.dataset.key)) : new Set();
+
+    const byDept = {};
+    people.forEach(p => (byDept[p.dept || "Department not given"] = byDept[p.dept || "Department not given"] || []).push(p));
+    const questions = questionList(i);
+
+    let html = `<p class="others-note">${people.length} ${people.length === 1 ? "person has" : "people have"} answered.</p>`;
+    Object.keys(byDept).sort().forEach(dept => {
+      let n = 0;
+      const persons = byDept[dept].map(p => {
+        const label = p.mine ? "You" : `Person ${++n}`;
+        const key = `${dept}|${label}`;
+        let lastPart = null, body = "";
+        questions.forEach(q => {
+          const a = (p.answers || {})[q.key];
+          if (!a) return;
+          if (q.part && q.part !== lastPart) { body += `<p class="part">${q.part}</p>`; lastPart = q.part; }
+          body += `<div class="others-q"><h4>${linkTools(q.text)}</h4><blockquote>${esc(a)}</blockquote></div>`;
+        });
+        return `<details class="others-person" data-key="${esc(key)}" ${wasOpen.has(key) ? "open" : ""}>
+          <summary>${label}</summary>${body}</details>`;
+      }).join("");
+      html += `<details class="others-dept" data-key="${esc(dept)}" ${wasOpen.has(dept) ? "open" : ""}>
+        <summary>${esc(dept)} <span class="others-n">${byDept[dept].length}</span></summary>${persons}</details>`;
     });
     list.innerHTML = html;
+    list.dataset.section = i;
+  }
+
+  // Drag the panel's left edge to make it wider or narrower; the width is remembered.
+  const WIDTH_KEY = "nsciTrainings.othersWidth";
+  function setOthersWidth(w) {
+    w = Math.round(Math.max(280, Math.min(w, window.innerWidth * 0.75, 1000)));
+    othersEl.style.setProperty("--others-w", w + "px");
+    return w;
   }
 
   if (othersEl) {
@@ -219,6 +250,24 @@
     let wasOpen = false;
     try { wasOpen = !!localStorage.getItem(OPEN_KEY); } catch (e) { /* storage unavailable */ }
     setOthersOpen(wasOpen);
+
+    try { const w = Number(localStorage.getItem(WIDTH_KEY)); if (w) setOthersWidth(w); } catch (e) { /* storage unavailable */ }
+    const handle = document.getElementById("othersResize");
+    handle.addEventListener("pointerdown", e => {
+      e.preventDefault();
+      try { handle.setPointerCapture(e.pointerId); } catch (err) { /* keeps working, just less smoothly over iframes */ }
+      document.body.classList.add("resizing");
+      const move = ev => setOthersWidth(window.innerWidth - ev.clientX);
+      const up = ev => {
+        handle.removeEventListener("pointermove", move);
+        handle.removeEventListener("pointerup", up);
+        document.body.classList.remove("resizing");
+        const w = setOthersWidth(window.innerWidth - ev.clientX);
+        try { localStorage.setItem(WIDTH_KEY, w); } catch (err) { /* storage unavailable */ }
+      };
+      handle.addEventListener("pointermove", move);
+      handle.addEventListener("pointerup", up);
+    });
   }
 
   function go(i, anchor) {

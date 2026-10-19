@@ -47,7 +47,7 @@ Everything for a training is in its `index.html`, in the block marked **THIS TRA
 
 ## 3. Other people's answers
 
-Each training page has an **Others' answers** sidebar on the right, collapsed by default. It shows everyone's latest answers for the current section, without names or departments. It loads from the same Google Sheet, so it works once the sheet is connected.
+Each training page has an **Others' answers** sidebar on the right, collapsed by default. It shows everyone's latest answers for the current section, grouped by department and then by person ("Person 1", "Person 2", and "You" for your own). Names are never shown. People can drag the sidebar's left edge to make it wider. It loads from the same Google Sheet, so it works once the sheet is connected.
 
 - **Hiding an answer:** type anything (for example, `x`) in that row's **Hide** column in the sheet. It disappears from the sidebar within a minute.
 - **Answers from before this feature** don't have a **Question ID** and won't appear in the sidebar. They're still in the sheet.
@@ -64,5 +64,7 @@ GitHub Pages serves this repo directly: **Settings → Pages → Deploy from a b
 
 ## Notes
 
+- **After changing anything in `shared/`, bump the version number.** Each page loads the shared files as `workshop.js?v=2` and so on. Change every `?v=2` to `?v=3` (in `index.html` and each training's `index.html`) so browsers fetch the new files instead of using an old saved copy.
+
 - **Answers are also kept in each person's browser** (per training), so they can close the tab and come back. Name and department carry over between trainings.
-- **The web-app URL is visible in the page source.** Anyone who finds it could add rows to the sheet, or read the same anonymous answers the sidebar shows (never names or departments). That's fine for a faculty workshop; if spam ever shows up, deploy a new version and update the URL.
+- **The web-app URL is visible in the page source.** Anyone who finds it could add rows to the sheet, or read the same anonymous answers the sidebar shows (departments, never names). That's fine for a faculty workshop; if spam ever shows up, deploy a new version and update the URL.

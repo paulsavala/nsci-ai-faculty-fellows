@@ -41,47 +41,48 @@ function doPost(e) {
   }
 }
 
-// ?section=<training id>/<section id> returns that section's shared answers.
+// ?section=<training id>/<section id> returns that section's shared answers;
+// &me=<session id> marks the asker's own entry so the page can label it "You".
 // Visiting the bare web-app URL in a browser confirms it's deployed.
 function doGet(e) {
-  const section = e && e.parameter && e.parameter.section;
-  if (!section) return ContentService.createTextOutput("Training response collector is running.");
-  return json_(sharedAnswers_(section));
+  const p = (e && e.parameter) || {};
+  if (!p.section) return ContentService.createTextOutput("Training response collector is running.");
+  return json_(sharedAnswers_(p.section, p.me || ""));
 }
 
-// Everyone's latest answer to each question in a shared section, with no names attached.
+// Each person's latest answers in a section, with their department but no name.
 // Type anything in a row's "Hide" cell to keep that answer from being shown.
-function sharedAnswers_(section) {
+function sharedAnswers_(section, me) {
   if (!/^[\w-]+\/[\w-]+$/.test(section)) return { ok: false, error: "Unknown section." };
   const cache = CacheService.getScriptCache();
   const cached = cache.get("shared:" + section);
-  if (cached) return JSON.parse(cached);
+  const people = cached ? JSON.parse(cached) : readPeople_(section);
+  if (!cached) {
+    try { cache.put("shared:" + section, JSON.stringify(people), 60); } catch (err) { /* too big to cache: fine */ }
+  }
+  // Session IDs stay on the server; the page only learns which entry is its own.
+  return { ok: true, people: people.map(p => ({ dept: p.dept, answers: p.answers, mine: !!me && p.session === me })) };
+}
 
+function readPeople_(section) {
   const values = getSheet_().getDataRange().getValues();
   const col = name => values[0].indexOf(name);
-  const cQid = col("Question ID"), cAns = col("Answer"), cSess = col("Session ID"), cHide = col("Hide");
+  const cQid = col("Question ID"), cAns = col("Answer"), cSess = col("Session ID"), cHide = col("Hide"), cDept = col("Department");
   const prefix = section + "-";
-  const latest = {}; // "session|question" -> answer; later rows replace earlier ones
+  const bySession = {}; // later rows replace earlier ones, so each person's latest answers win
+  const order = [];     // first-submission order, so "Person 1" stays the same person between visits
   for (let i = 1; i < values.length; i++) {
     const row = values[i], qid = String(row[cQid] || "");
     if (!qid.startsWith(prefix)) continue;
-    latest[row[cSess] + "|" + qid] = String(row[cHide] || "").trim() ? "" : String(row[cAns] || "").trim();
+    const sess = String(row[cSess]);
+    if (!bySession[sess]) { bySession[sess] = { session: sess, answers: {} }; order.push(sess); }
+    const p = bySession[sess];
+    p.dept = String(row[cDept] || "").trim();
+    p.answers[qid.slice(section.indexOf("/") + 1)] = String(row[cHide] || "").trim() ? "" : String(row[cAns] || "").trim();
   }
-
-  const answers = {}, people = {};
-  Object.keys(latest).forEach(k => {
-    if (!latest[k]) return;
-    const [sess, qid] = k.split("|");
-    const key = qid.slice(section.indexOf("/") + 1); // e.g. "s1-q0"
-    (answers[key] = answers[key] || []).push(latest[k]);
-    people[sess] = true;
-  });
-  // Shuffle so the order doesn't hint at who wrote what.
-  Object.keys(answers).forEach(k => answers[k].sort(() => Math.random() - 0.5));
-
-  const result = { ok: true, people: Object.keys(people).length, answers: answers };
-  try { cache.put("shared:" + section, JSON.stringify(result), 60); } catch (err) { /* too big to cache: fine */ }
-  return result;
+  return order.map(s => bySession[s])
+    .map(p => { Object.keys(p.answers).forEach(k => { if (!p.answers[k]) delete p.answers[k]; }); return p; })
+    .filter(p => Object.keys(p.answers).length);
 }
 
 function json_(obj) {
