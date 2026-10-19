@@ -8,5 +8,5 @@ window.SITE_CONFIG = {
   presenter: "Dr. Paul Savala",
 
   // Department choices in the sidebar.
-  departments: ["Biology", "Computer Science", "Mathematics", "Kinesiology", "Forensic Science", "Other"]
+  departments: ["Biology", "Chemistry", "Computer Science", "Forensic Science", "Kinesiology", "Mathematics"]
 };
