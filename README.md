@@ -58,6 +58,8 @@ Each training page has an **Others' answers** sidebar on the right, collapsed by
 2. In the new `index.html`, change `id` (must be unique: it keeps each training's saved answers separate), `title`, `subtitle`, and the `sections` list.
 3. On the home page (`index.html` at the top level), copy a card and point it at the new folder.
 
+A training can be **slides only**. Leave out `youtubeId` and `activity` on its sections (see `ai-teaching-learning/index.html`): the page then hides the video blocks, the name and department fields, and the "others' answers" panel.
+
 ## 5. Publishing
 
 GitHub Pages serves this repo directly: **Settings → Pages → Deploy from a branch → main / (root)**. After a push, the live site updates within a minute or two.

@@ -7,6 +7,9 @@
   const SECTIONS = T.sections;
   const SHEET_URL = T.sheetUrl || SITE.sheetUrl || "";
   const STORE_KEY = "nsciTrainings." + T.id;
+  // A training can be slides only: no video and/or no activities.
+  const HAS_ACT = SECTIONS.some(s => s.activity);
+  const HAS_VIDEO = SECTIONS.some(s => s.youtubeId);
 
   /* ---------- page skeleton ---------- */
   document.body.classList.add("training");
@@ -21,16 +24,16 @@
         <p>${T.subtitle || ""}${SITE.presenter ? ` · ${SITE.presenter}` : ""}</p>
         ${T.fullSlidesPdf ? `<a class="all-slides" href="${encodeURI(T.fullSlidesPdf)}" target="_blank" rel="noopener">▤ All slides in one PDF</a>` : ""}
       </div>
-      <div class="profile">
+      ${HAS_ACT ? `<div class="profile">
         <label for="name">Your name</label>
         <input id="name" placeholder="First and last name" autocomplete="name">
         <label for="dept">Department</label>
         <select id="dept"><option value="">Choose…</option>${depts}</select>
-      </div>
+      </div>` : ""}
       <nav id="nav"></nav>
     </aside>
     <main id="main"></main>
-    ${SHEET_URL ? `
+    ${SHEET_URL && HAS_ACT ? `
     <aside class="others" id="others">
       <button class="others-rail" id="othersRail" aria-controls="othersBody" aria-expanded="false">
         <span class="others-rail-label">Others' answers</span>
@@ -74,10 +77,12 @@
 
   const nameEl = document.getElementById("name");
   const deptEl = document.getElementById("dept");
-  nameEl.value = state.name;
-  deptEl.value = state.dept;
-  nameEl.addEventListener("input", () => { state.name = nameEl.value; nameEl.classList.remove("missing"); save(); });
-  deptEl.addEventListener("change", () => { state.dept = deptEl.value; deptEl.classList.remove("missing"); save(); });
+  if (nameEl && deptEl) {
+    nameEl.value = state.name;
+    deptEl.value = state.dept;
+    nameEl.addEventListener("input", () => { state.name = nameEl.value; nameEl.classList.remove("missing"); save(); });
+    deptEl.addEventListener("change", () => { state.dept = deptEl.value; deptEl.classList.remove("missing"); save(); });
+  }
 
   /* ---------- helpers ---------- */
   // Link tool names wherever they appear on screen (the sheet keeps the plain text).
@@ -89,6 +94,7 @@
 
   function questionList(i) {
     const s = SECTIONS[i], a = s.activity, list = [], id = secId(i);
+    if (!a) return list;
     if (a.parts) a.parts.forEach((p, pi) => p.questions.forEach((q, qi) => list.push({ key: `${id}-p${pi}q${qi}`, text: q, part: p.label })));
     else a.questions.forEach((q, qi) => list.push({ key: `${id}-q${qi}`, text: q }));
     return list;
@@ -101,12 +107,12 @@
       return `
       <button class="sec-btn ${i === current ? "active" : ""} ${done ? "done" : ""}" data-go="${i}">
         <span class="num">${done ? "✓" : i + 1}</span>
-        <span>${s.title}<span class="meta">${s.mins || ""}${s.slides ? ` · slides ${s.slides}` : ""}</span></span>
+        <span>${s.title}<span class="meta">${[s.mins, s.slides ? `slides ${s.slides}` : ""].filter(Boolean).join(" · ")}</span></span>
       </button>
       <div class="sub ${i === current ? "open" : ""}">
-        <a href="#video" data-go="${i}" data-anchor="video">▶ Video</a>
+        ${HAS_VIDEO ? `<a href="#video" data-go="${i}" data-anchor="video">▶ Video</a>` : ""}
         <a href="#slides" data-go="${i}" data-anchor="slides">▤ Slides</a>
-        <a href="#activity" data-go="${i}" data-anchor="activity">✎ Activity</a>
+        ${s.activity ? `<a href="#activity" data-go="${i}" data-anchor="activity">✎ Activity</a>` : ""}
       </div>`;
     }).join("");
   }
@@ -131,18 +137,18 @@
 
     const isDone = state.done.includes(secId(current));
     document.getElementById("main").innerHTML = `
-      ${SHEET_URL ? "" : `<div class="banner">Saving isn't connected yet: answers are kept in this browser only.</div>`}
+      ${SHEET_URL || !HAS_ACT ? "" : `<div class="banner">Saving isn't connected yet: answers are kept in this browser only.</div>`}
       <div class="eyebrow">Section ${current + 1} of ${SECTIONS.length}</div>
       <h2 class="title">${s.title}</h2>
       ${s.lede ? `<p class="lede">${s.lede}</p>` : ""}
 
-      <h3 class="block" id="video">Video <small>${s.mins || ""}</small></h3>
-      ${video}
+      ${HAS_VIDEO ? `<h3 class="block" id="video">Video <small>${s.mins || ""}</small></h3>
+      ${video}` : ""}
 
       <h3 class="block" id="slides">Slides <small>${s.slides ? "slides " + s.slides : ""}</small></h3>
       ${slides}
 
-      <h3 class="block" id="activity">Activity <small>${a.time || "about 5–8 min"}</small></h3>
+      ${a ? `<h3 class="block" id="activity">Activity <small>${a.time || "about 5–8 min"}</small></h3>
       <div class="activity">
         <h4>${a.name}</h4>
         ${a.instr ? `<p class="instr">${linkTools(a.instr)}</p>` : ""}
@@ -154,7 +160,7 @@
           <span class="status" id="status"></span>
         </div>
         ${SHEET_URL ? `<button class="others-link" data-others-open>See how others answered →</button>` : ""}
-      </div>
+      </div>` : ""}
 
       <div class="nextbar">
         <button ${current === 0 ? "disabled" : ""} data-go="${current - 1}">← Previous section</button>
@@ -163,7 +169,8 @@
 
     document.querySelectorAll("textarea[data-key]").forEach(t =>
       t.addEventListener("input", () => { state.answers[t.dataset.key] = t.value; save(); }));
-    document.getElementById("submitBtn").addEventListener("click", submitSection);
+    const submitBtn = document.getElementById("submitBtn");
+    if (submitBtn) submitBtn.addEventListener("click", submitSection);
     loadOthers();
   }
 
@@ -182,7 +189,7 @@
   async function loadOthers(fresh) {
     if (!othersEl) return;
     const i = current;
-    document.getElementById("othersSection").textContent = `Section ${i + 1} · ${SECTIONS[i].activity.name}`;
+    document.getElementById("othersSection").textContent = `Section ${i + 1} · ${(SECTIONS[i].activity || {}).name || ""}`;
     if (othersCache[i] && !fresh) return drawOthers(i, othersCache[i]);
     drawOthers(i, null);
     let data;
