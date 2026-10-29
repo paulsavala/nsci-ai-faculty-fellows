@@ -325,15 +325,17 @@
       status.textContent = "Saving…";
       try {
         // text/plain avoids a CORS preflight; Apps Script reads the body as JSON.
-        await fetch(SHEET_URL, {
+        // Its reply is readable, so a refused or failed save shows as an error instead of "Saved".
+        const res = await fetch(SHEET_URL, {
           method: "POST",
-          mode: "no-cors",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify({
             training: T.title, name: state.name.trim(), department: state.dept,
             sessionId: state.sessionId, rows
           })
         });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || "not saved");
       } catch (e) {
         btn.disabled = false;
         status.className = "status err";
