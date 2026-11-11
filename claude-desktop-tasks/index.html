@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting Things Done with Claude Desktop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/workshop.css?v=3">
+<style>
+  /* task-page extras (move into workshop.css once settled) */
+  .topic-label { padding: 18px 24px 6px; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #64748B; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 28px; }
+  .chip { font-size: 13px; font-weight: 700; padding: 5px 12px; border-radius: 999px; background: var(--card); color: var(--ink); }
+  .chip.files { background: var(--blue-soft); }
+  .chip.browser { background: #DCFCE7; color: #166534; }
+  .chip.artifact { background: #FEF3C7; color: #92400E; }
+  .callout { background: var(--amber-bg); color: var(--amber-ink); border-radius: 12px; padding: 16px 20px; font-size: 15px; line-height: 1.55; margin: 0 0 8px; }
+  .callout b { color: var(--amber-ink); }
+  ul.plain { margin: 0; padding-left: 20px; line-height: 1.7; font-size: 16px; }
+  .step { background: white; border: 1px solid var(--rule); border-radius: 14px; padding: 22px 26px; margin: 0 0 16px; }
+  .step h4 { margin: 0 0 6px; font-size: 18px; color: var(--ink); display: flex; gap: 12px; align-items: baseline; }
+  .step h4 .n { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--navy); color: white; display: grid; place-items: center; font-size: 14px; }
+  .step p { margin: 0 0 4px; font-size: 15px; line-height: 1.55; }
+  .prompt-wrap { position: relative; }
+  .prompt-wrap .prompt { padding-right: 76px; }
+  .copy { position: absolute; top: 8px; right: 8px; font: inherit; font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 6px; border: 1px solid var(--rule); background: white; color: var(--ink); cursor: pointer; }
+  .copy:hover { border-color: var(--blue); color: var(--blue); }
+  .look { font-size: 14px; color: var(--body); margin-top: 8px; }
+  .look b { color: var(--ink); }
+  .tips { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+  .tip { background: var(--card); border-radius: 12px; padding: 16px 18px; font-size: 15px; line-height: 1.5; }
+  .tip b { display: block; color: var(--ink); margin-bottom: 4px; }
+  details.extra { background: white; border: 1px solid var(--rule); border-radius: 12px; padding: 14px 20px; margin: 0 0 12px; }
+  details.extra summary { cursor: pointer; font-weight: 500; color: var(--ink); }
+  details.extra p { font-size: 15px; margin: 10px 0 0; }
+  .guide-block { margin: 0 0 36px; }
+  .guide-block p { font-size: 16px; line-height: 1.6; margin: 0 0 14px; max-width: 760px; }
+  .guide-block img { display: block; max-width: 100%; max-height: 520px; border-radius: 12px; border: 1px solid var(--rule); box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12); }
+</style>
+</head>
+<body>
+<script src="../shared/site-config.js?v=3"></script>
+<script>
+/* =====================================================================
+   THIS TRAINING'S CONTENT. Topics hold tasks (step-by-step prompts) or
+   guide pages (guide: true, with blocks of text and screenshots).
+   Each task: topic, title, mode ("files", "browser", or both), time, lede,
+   before (checklist), steps [{title, why, prompt, look}], tips, extras.
+   ===================================================================== */
+window.TASKS = {
+  title: "Getting Things Done with Claude Desktop",
+  subtitle: "NSCI Faculty Workshop",
+  topics: [
+    { name: "Getting started", tasks: [
+      { id: "the-app", title: "The Claude app", guide: true, time: "2 min read",
+        lede: "Claude Desktop looks like a chat window, but it can also work with files on your computer and use your web browser. Here's what you'll see when you open it.",
+        blocks: [
+          { h: "The main window", img: "img/app-window.png", alt: "The Claude desktop app's main window",
+            text: "<b>New</b> (top left) starts a fresh task. Type what you want in the box in the middle. Your past work is under <b>Recents</b>, and anything Claude has built for you, like a web page or a slide deck, is under <b>Artifacts</b>." },
+          { h: "The three controls under the box", img: "img/compose-box.png", alt: "The message box with Project or folder, model, effort and permission controls",
+            text: "Before you start a task, glance at these. <b>Project or folder</b> chooses which folder Claude can work in. <b>Opus 5.5 Medium</b> is the model and how hard it thinks. <b>Auto</b> (or Manual) controls how often Claude stops to ask your permission. Each one has its own page in this section." }
+        ] },
+      { id: "model-effort", title: "Choose a model and effort", guide: true, time: "2 min read",
+        lede: "Which model you use, and how hard you let it think, makes a big difference to the results. Defaults are fine for quick questions; turn things up for anything hard.",
+        blocks: [
+          { h: "The model menu", img: "img/model-menu.png", alt: "The model menu listing Fable, Opus, Sonnet and Haiku, with an Effort setting",
+            text: "Click the model name under the message box. Bigger models are more capable but slower: <b>Fable</b> is for the toughest problems, <b>Opus</b> is a strong everyday choice, and <b>Sonnet</b> and <b>Haiku</b> are faster for simple jobs. <b>Effort</b> sets how long Claude thinks before answering." },
+          { h: "A simple rule", text: "Start with Opus at Medium effort. If a result is shallow or wrong on something hard (a tricky problem, a careful critique, a long analysis), raise the effort or switch to a bigger model and try again before giving up. As we saw in the workshop, the same model can go from failing to excelling on a hard benchmark just by thinking longer." }
+        ] },
+      { id: "connect-folder", title: "Connect a folder", guide: true, time: "2 min read",
+        lede: "Claude can only see the folders you give it. Connecting one lets it read, organize and create files there.",
+        blocks: [
+          { h: "1. Add the folder", img: "img/add-folder.png", alt: "The Project or folder menu with Add folder highlighted",
+            text: "Click <b>Project or folder</b> under the message box, then <b>Add folder</b>, and pick the folder. Tip: make a copy of the folder first and connect the copy." },
+          { h: "2. Allow access", img: "img/folder-access.png", alt: "A dialog asking to allow Claude to access a folder",
+            text: "Your computer asks you to confirm. Click <b>Allow</b>. Leave \"Don't ask again\" unchecked while you're learning." },
+          { h: "3. Approve changes", img: "img/change-files.png", alt: "A prompt asking to allow Claude to change files in a folder",
+            text: "The first time Claude wants to change files, it asks. <b>Allow</b> approves it for this task; <b>Always allow</b> approves it from now on. Choose Allow until you're comfortable." },
+          { h: "Keep it safe", text: "Only connect folders with your own materials. Never connect a folder with student work, grades, rosters or other sensitive university information." }
+        ] },
+      { id: "permissions", title: "Permission mode", guide: true, time: "1 min read",
+        lede: "This setting decides how often Claude stops to check with you.",
+        blocks: [
+          { h: "Manual or Auto", img: "img/permission-mode.png", alt: "The permission mode menu with Manual and Auto options",
+            text: "Click <b>Manual</b> or <b>Auto</b> under the message box. <b>Manual</b> asks before Claude uses a new tool or opens a new website. <b>Auto</b> lets it work on its own and pause only when something looks unsafe. Use Manual while you're learning: the prompts show you what Claude is doing, and you can say no to anything." }
+        ] },
+      { id: "browser", title: "Let Claude use your browser", guide: true, time: "2 min read",
+        lede: "With the Claude extension for Chrome, Claude can open web pages, read them, and fill in forms for you.",
+        blocks: [
+          { h: "1. Install and pin the extension", img: "img/chrome-extension.png", alt: "Chrome's extensions menu with the Claude extension and a pin button",
+            text: "Install the <b>Claude</b> extension from the Chrome Web Store and sign in with the same account you use for Claude Desktop. Then open Chrome's extensions menu (the puzzle piece) and click the pin next to Claude so it stays in your toolbar." },
+          { h: "2. Claude in Chrome", img: "img/chrome-panel.png", alt: "Claude open in a side panel in Chrome",
+            text: "Clicking the Claude icon opens a side panel where you can ask Claude to do things on the page in front of you. Claude Desktop can also use Chrome when a task needs the web; in Manual mode it asks before opening each new site." },
+          { h: "Keep it safe", text: "Claude works in your real browser, where you're signed in. Before a browser task, close tabs you don't want it to see, especially email and the LMS, and only approve the sites the task needs." }
+        ] }
+    ] },
+    { name: "Teaching", tasks: [
+      { id: "review-sheet", title: "Final exam review sheet",
+        modes: ["files"], time: "about 20 minutes",
+        lede: "Turn your own lecture notes and slides into a study guide for the final: the key ideas, a formula or concept sheet, and practice problems with an answer key.",
+        before: [
+          "Put <b>copies of your notes, slides and past problem sets</b> for the course in a folder and connect it.",
+          "<b>Leave out anything with student information</b>, such as graded work or gradebook exports.",
+          "Know roughly what the final covers (which weeks or chapters)."
+        ],
+        steps: [
+          { title: "Map what the course covered",
+            why: "Checking the topic list first makes sure the review sheet matches what you actually taught.",
+            prompt: "Read the course materials in this folder. List the main topics we covered, in order, with the key ideas, definitions and formulas for each. The final covers [weeks or chapters]. Don't write the review sheet yet.",
+            look: "Cross out anything that won't be on the final, and add anything it missed." },
+          { title: "Draft the review sheet",
+            why: "Telling it the length and who it's for keeps it from turning into a second textbook.",
+            prompt: "Write a review sheet for my students: one section per topic with the key ideas in plain language, then a one-page formula and concept sheet at the end. Keep it to about [4] pages. Use the same notation and terms as my notes. Save it as a Word document called Final Review.",
+            look: "Check that the notation matches yours. Students notice when it doesn't." },
+          { title: "Add practice problems",
+            why: "Asking it to solve and check each problem catches errors before your students do.",
+            prompt: "Add 2–3 practice problems for each topic, similar in style and difficulty to the problems in my materials. Work out each solution step by step, check each answer, and put the solutions in a separate answer key file.",
+            look: "Work two or three problems yourself and compare with the key." }
+        ],
+        tips: [
+          ["Use your own materials", "Pointing Claude at your notes keeps the review sheet in your notation and at your level, not a generic textbook's."],
+          ["Separate the key", "A separate answer key lets you post the review sheet first and the solutions later."],
+          ["Match your style", "\"Similar to the problems in my materials\" gets problems that look like yours."]
+        ],
+        extras: [
+          ["A version for a review session", "Turn the review sheet into 10 slides for an in-class review session, with one practice problem per slide and the solution on the following slide."]
+        ] },
+
+      { id: "alt-exam", title: "Alternate exam versions",
+        modes: ["files"], time: "about 20 minutes",
+        lede: "Make a makeup or alternate version of your own exam: same skills, same difficulty, new numbers or scenarios, with a checked answer key.",
+        before: [
+          "Put <b>a copy of the exam</b> (and its key, if you have one) in a folder and connect it.",
+          "<b>No student work.</b> Just the blank exam and your key."
+        ],
+        steps: [
+          { title: "Break down what each question tests",
+            why: "An alternate version is only fair if each question tests the same skill at the same level.",
+            prompt: "Read the exam in this folder. For each question, tell me what skill or concept it tests and what makes it easy or hard (the steps involved, any traps). Don't write anything new yet.",
+            look: "Correct anything it got wrong. This list is what the new version has to match." },
+          { title: "Write the new version",
+            why: "Saying what to change, and what to keep, gets a true parallel version instead of a different exam.",
+            prompt: "Write an alternate version of this exam. Each question should test the same skill at the same difficulty, but with different numbers, compounds, organisms or scenarios, so a student who saw the original can't simply reuse answers. Keep the same format, point values and order. Save it as a Word document called Exam - Version B.",
+            look: "Read a few questions side by side with the originals. Same skill? Same difficulty?" },
+          { title: "Write and check the key",
+            why: "For anything with a numerical answer, having Claude check its work with code catches arithmetic slips.",
+            prompt: "Write a complete answer key for Version B with worked solutions. For every question with a numerical answer, check the answer by running a calculation in code, and tell me about any answer that didn't match on the first try. Save it as Exam - Version B Key.",
+            look: "Spot-check a few answers yourself, especially any it flagged." }
+        ],
+        tips: [
+          ["Skills first", "Listing what each question tests is what keeps the two versions equally hard."],
+          ["Ask it to check with code", "Claude can make arithmetic mistakes when writing; running the numbers catches them."],
+          ["Say what stays the same", "Format, point values and order all matter for fairness, so name them."]
+        ],
+        extras: [
+          ["Scramble the order", "Make a third version with the same questions as Version B, but with the question order and multiple-choice options shuffled, plus a matching key."]
+        ] },
+
+      { id: "demo", title: "Interactive concept demo",
+        modes: ["artifact"], time: "about 20 minutes",
+        lede: "Have Claude build an interactive web page for a concept you teach, such as predator–prey dynamics with sliders for birth and death rates, that students can play with to build intuition.",
+        before: [
+          "<b>Pick one concept</b> where seeing it change would help: a model with parameters, a process over time, a curve that depends on conditions.",
+          "Think about <b>what students should notice</b> when they play with it. That's the most important part of the prompt."
+        ],
+        steps: [
+          { title: "Describe the concept and the goal",
+            why: "Saying what students should learn, not just what to draw, gets a demo that teaches rather than just moves.",
+            prompt: "Build an interactive web page for my [course] students about [concept, e.g. Lotka–Volterra predator–prey dynamics]. Students should be able to change [the parameters, e.g. prey birth rate, predation rate, predator death rate] with sliders and immediately see [what changes, e.g. the population graphs over time]. The goal is for them to notice [what you want them to see, e.g. that the populations cycle, and how the cycles change]. Keep it simple and readable on a phone.",
+            look: "Play with it. Does it behave the way the real system does at the extremes?" },
+          { title: "Check the science",
+            why: "A demo that looks right but uses the wrong equation is worse than none, so make Claude show its work.",
+            prompt: "Explain the equations or rules your demo uses and the default parameter values. Are there any simplifications a student should know about?",
+            look: "Compare with how you teach it. Ask it to change anything that doesn't match your notation or model." },
+          { title: "Make it teach",
+            why: "A few guided questions turn a toy into an activity.",
+            prompt: "Add a short 'Try this' box with 3 questions that lead students to discover [the key idea], each answered by changing a slider. Don't give the answers on the page.",
+            look: "" },
+          { title: "Share it",
+            why: "Claude can publish the page as an artifact with its own link.",
+            prompt: "Publish this as an artifact I can share with my students.",
+            look: "Open the link in a private browser window to check that students will be able to see it, then add the link to your LMS or course website." }
+        ],
+        tips: [
+          ["Say what students should notice", "That one sentence shapes the whole design."],
+          ["Verify the model", "Ask for the equations and defaults. It's your name on the demo."],
+          ["Iterate in plain language", "\"Make the sliders bigger\", \"add a phase plot\", \"use our textbook's symbols\" all work."]
+        ],
+        extras: [
+          ["Ideas for other fields", "Suggest 5 concepts from [course] that would make good interactive demos, and say what students would learn from each."]
+        ] },
+
+      { id: "quiz", title: "Quiz from your notes",
+        modes: ["files", "browser"], time: "about 25 minutes",
+        lede: "Have Claude write quiz questions from your own notes, then enter them into your LMS for you, in a practice course with no students in it.",
+        before: [
+          "Put <b>copies of the notes or slides</b> the quiz covers in a folder and connect it.",
+          "<b>Use a sandbox or empty course shell in the LMS</b>, never a live course with students. A live course shows rosters and grades.",
+          "<b>Close tabs you don't want Claude to see</b>, such as email."
+        ],
+        steps: [
+          { title: "Write the questions",
+            why: "Reviewing the questions before anything goes into the LMS is much easier than fixing them there.",
+            prompt: "Read my notes in this folder on [topic]. Write a [10]-question quiz: [mix of multiple choice and short answer]. Questions should test understanding, not just recall of terms. For multiple choice, make each wrong option a mistake a student might really make. Save it as a document called Quiz Draft with the answers marked.",
+            look: "Edit any question you don't like, in the file or by telling Claude." },
+          { title: "Enter it in the LMS",
+            why: "Pointing Claude at an empty course keeps it away from student information.",
+            prompt: "Open [link to the quiz page in your sandbox course]. Create a new quiz called [name] and enter the questions from Quiz Draft, with the correct answers and point values. Don't publish it. Stop and ask me if anything is unclear.",
+            look: "Watch it work the first time. Approve only the LMS site." },
+          { title: "Check it",
+            why: "LMS editors are fiddly, so verify before you copy it to your real course.",
+            prompt: "Compare the quiz in the LMS with Quiz Draft question by question and tell me about any differences.",
+            look: "Preview the quiz as a student would, then copy or import it into your real course yourself." }
+        ],
+        tips: [
+          ["Draft in a file first", "It's much faster to review and edit questions in a document than in the LMS."],
+          ["Sandbox only", "Claude works in your signed-in browser. Keep it in a course with no students."],
+          ["Good distractors", "Asking for wrong options based on real student mistakes makes multiple choice far more informative."]
+        ],
+        extras: [
+          ["Skip the browser", "Instead of entering it by hand, ask: \"Save the quiz in a format I can import into [your LMS].\" Then import it yourself."]
+        ] }
+    ] },
+    { name: "Course design", tasks: [
+      { id: "website", title: "Build a course website",
+        modes: ["files", "artifact"], time: "about 30 minutes",
+        lede: "Have Claude turn your syllabus and course files into a clean course website: schedule, policies, resources and links, all in one place.",
+        before: [
+          "Put <b>copies of your syllabus</b> and any handouts or resource lists in a folder and connect it.",
+          "<b>Nothing with student information.</b> A course site is public by design."
+        ],
+        steps: [
+          { title: "Plan the pages",
+            why: "Agreeing on the structure first is easier than rearranging a finished site.",
+            prompt: "Read my syllabus and the course files in this folder. Propose a simple course website: the pages or sections it should have (for example Home, Schedule, Policies, Resources) and what goes on each. Don't build it yet.",
+            look: "Add or remove sections now." },
+          { title: "Build it",
+            why: "Describing the feel you want gets you a design you like on the first try.",
+            prompt: "Build the website as a single page with a menu for the sections. Make it clean and easy to read on a phone, with the schedule as a table by week. Use [your school colors / a simple, professional look]. Show it to me when it's done.",
+            look: "Read every date and policy. Claude copies from your syllabus, but check anything that matters." },
+          { title: "Publish it",
+            why: "An artifact link is the simplest way to share it, with no web hosting account needed.",
+            prompt: "Publish the website as an artifact I can share with my students.",
+            look: "Open the link in a private browser window to make sure students can see it. Then put the link in your LMS." }
+        ],
+        tips: [
+          ["Structure, then build, then publish", "Each step is easy to check before the next."],
+          ["Keep updating it", "Later, just ask: \"Add Exam 2 to the schedule on March 12 and republish.\""],
+          ["Add your demos", "If you built an interactive demo, ask Claude to add a Resources link to it."]
+        ],
+        extras: [
+          ["Other places to host it", "If you'd rather host it yourself, ask: \"Save the website as files in my folder so I can upload them to Google Sites or my university web space.\""]
+        ] },
+
+      { id: "syllabus", title: "Update your syllabus for spring",
+        modes: ["browser", "files"], time: "about 15 minutes",
+        lede: "Have Claude read the university's spring academic calendar and update every date in your syllabus: class meetings, holidays, exams and the final exam slot.",
+        before: [
+          "Put <b>a copy of last term's syllabus</b> in a folder and connect it.",
+          "Have the <b>link to the public academic calendar</b> (and final exam schedule) ready."
+        ],
+        steps: [
+          { title: "Read the calendar",
+            why: "Pulling the dates into a list first makes them easy to check against the official page.",
+            prompt: "Open the academic calendar for Spring 2027: [link]. List the dates I need for a [MWF / TR] class: first and last day of classes, holidays and breaks, the last day to withdraw, and the final exam period. Also find my final exam time for a class that meets [days and time]: [link to the final exam schedule].",
+            look: "Check two or three dates against the calendar yourself." },
+          { title: "Update the syllabus",
+            why: "Working on a new copy and listing every change keeps it easy to review.",
+            prompt: "Make a new copy of my syllabus called Syllabus - Spring 2027 and update it for spring: every date in the schedule, holidays, exam dates and the final. Keep the same number of class meetings per topic where possible. List every date you changed, and tell me where the schedule had to shift.",
+            look: "Look hardest at the weeks around spring break and any holidays." }
+        ],
+        tips: [
+          ["Facts first", "Get the calendar dates into a list before editing. It makes mistakes easy to spot."],
+          ["Ask for a list of changes", "You review a short list instead of re-reading the whole syllabus."],
+          ["Name your meeting pattern", "MWF vs TR changes every date, so say which you teach."]
+        ],
+        extras: [
+          ["Refresh the policies too", "Compare my syllabus's policy sections with the university's current required syllabus language at [link], and list anything outdated or missing."]
+        ] },
+
+      { id: "links", title: "Check your links",
+        modes: ["files", "browser"], time: "about 15 minutes",
+        lede: "Have Claude find every link in your syllabus and handouts, open each one, and tell you which are broken or moved, with suggested replacements.",
+        before: [
+          "Put <b>copies of your syllabus and handouts</b> in a folder and connect it.",
+          "<b>Close tabs you don't want Claude to see.</b>"
+        ],
+        steps: [
+          { title: "Collect the links",
+            why: "A list of every link and where it lives makes the rest easy.",
+            prompt: "Find every web link in the files in this folder. Make a spreadsheet called Link Check with the file, the link text, and the URL.",
+            look: "" },
+          { title: "Check each one",
+            why: "Asking it to read the page, not just load it, catches links that work but point to the wrong thing.",
+            prompt: "Open each link and add a column for its status: works, broken, redirects somewhere else, or works but the content seems to have changed. For anything not working, search for the current version of the page and add a suggested replacement link.",
+            look: "Click a few of the suggested replacements yourself." },
+          { title: "Fix the files",
+            why: "New copies keep your originals safe.",
+            prompt: "Make updated copies of the files with the broken links replaced by the suggestions I approve: [list them, or say 'all of them'].",
+            look: "" }
+        ],
+        tips: [
+          ["Spreadsheet first", "A table of links is easy to scan and easy to rerun next term."],
+          ["\"Works\" isn't enough", "A link can load fine and still point to the wrong page; ask Claude to check the content."],
+          ["Approve replacements", "Don't let it swap links you haven't looked at."]
+        ],
+        extras: [
+          ["Check your LMS links too", "Copy the text of your LMS course pages into a document in the folder, then run the same steps on it."]
+        ] }
+    ] },
+    { name: "Productivity", tasks: [
+      { id: "archive", title: "Archive the semester",
+        modes: ["files"], time: "about 15 minutes",
+        lede: "Turn this semester's messy course folder into one that's organized, consistently named, and has an index, so next year's version of you can find anything in seconds.",
+        before: [
+          "<b>Make a copy of the folder first</b> and point Claude at the copy. If anything goes wrong, your original is untouched.",
+          "<b>Take out anything with student information:</b> submissions, gradebook exports, rosters, emails. This task is for your own materials only.",
+          "In Claude Desktop, <b>connect the copied folder</b> so Claude can see it."
+        ],
+        steps: [
+          { title: "Look before touching anything",
+            why: "Asking Claude to describe the folder first lets you check that it understands what's there before it changes a thing.",
+            prompt: "Look through this folder and everything in it. Describe what's here: the kinds of files, how they're organized now, anything that looks duplicated or out of date, and any file names that are unclear. Don't change anything yet.",
+            look: "Does it recognize lectures vs. homework vs. exams? If it's confused about something, correct it now (\"files starting with HW are homework\")." },
+          { title: "Ask for a plan you can approve",
+            why: "Seeing the whole plan as a table makes it easy to catch a bad move before it happens.",
+            prompt: "Propose a new folder structure and a consistent naming scheme, for example 'Week 03 - Lecture - Enzyme Kinetics.pdf'. Show me a table of every file: its current name and location, and its new name and location. Don't move anything until I approve.",
+            look: "Skim the table. Change anything you don't like in plain language (\"keep the exams together, not by week\") and ask for the updated table." },
+          { title: "Let it do the work",
+            why: "Saying \"don't delete\" up front keeps every file recoverable.",
+            prompt: "That looks good, go ahead. Don't delete anything: put likely duplicates or old drafts in a folder called _old instead. When you're done, tell me what you moved and anything you weren't sure about.",
+            look: "Open a few files in their new places to spot-check." },
+          { title: "Add an index",
+            why: "An index turns the folder into something you (or a colleague teaching the course next) can read in one minute.",
+            prompt: "Create a file called README in the top folder that lists what's in each folder, with a one-line description of each file, organized by week or topic.",
+            look: "" }
+        ],
+        tips: [
+          ["Look, plan, act, check", "The same four steps work for almost any task on your files. Never let it act before you've seen the plan."],
+          ["Give it an example", "Showing one example name (\"Week 03 - Lecture - Topic\") gets you a far more consistent result than describing a rule."],
+          ["Say what not to do", "\"Don't delete anything\" and \"don't move anything until I approve\" are worth including every time."],
+          ["Correct it like a person", "If it misunderstands, just say so in plain language. You don't need to start over."]
+        ],
+        extras: [
+          ["A week-by-week summary of the course", "Based on the files in this folder, write a one-page summary of what the course covered each week. Save it as Course Summary."],
+          ["Notes for next time", "Look at the dates on the files and the order of topics. Point out anything that seems out of place, such as a topic that took much longer than the others or a file that was never used."]
+        ] }
+    ] },
+    { name: "Research", tasks: [
+      { id: "lit-review", title: "Literature review",
+        modes: ["browser", "files"], time: "about 30 minutes",
+        lede: "Get a head start on a literature review: Claude searches for papers on your question, reads them, and builds a summary table you can check and build on.",
+        before: [
+          "<b>Write your question down</b> in a sentence or two, as specifically as you can (organism, method, time range).",
+          "<b>Close tabs you don't want Claude to see</b>, such as email and the LMS. Claude works in your real browser, where you're signed in.",
+          "Make an empty folder for the results and <b>connect it</b> in Claude Desktop. If you already have PDFs on the topic, put copies there."
+        ],
+        steps: [
+          { title: "Scope the search",
+            why: "A short planning step catches a misunderstood question before Claude spends twenty minutes searching.",
+            prompt: "I'm starting a literature review on this question: [your question]. Before searching, suggest 4–6 search terms and tell me which databases you'd use (for example Google Scholar or PubMed). Don't search yet.",
+            look: "Do the terms match how people in your field actually write about this? Add any jargon it's missing." },
+          { title: "Search and collect",
+            why: "Requiring a link for every paper is what makes the results checkable.",
+            prompt: "Go ahead and search. Find about 15 relevant peer-reviewed papers, mostly from the last 10 years. For each one, open the paper's page and record: the full citation, a working link, what was studied, the method, and the main finding. Only include papers you actually opened. Save this as a spreadsheet called Literature Table in my folder.",
+            look: "Click three or four links at random. Is each paper real, and does the summary match its abstract?" },
+          { title: "Find the patterns",
+            why: "Limiting it to the table keeps every claim tied to a source you can check.",
+            prompt: "Using only the Literature Table, write a two-page summary: what's well established, where studies disagree, and what seems to be missing. Cite papers by author and year, and don't cite anything that isn't in the table.",
+            look: "Pick two claims and trace each back to its row in the table." },
+          { title: "Follow the references",
+            why: "Following references is how experienced reviewers find the key papers a keyword search misses.",
+            prompt: "Look at the reference lists of the three most relevant papers in the table. Add any important papers we missed, with the same columns, and tell me what you added.",
+            look: "" }
+        ],
+        tips: [
+          ["Verify, every time", "Made-up or garbled citations are the classic failure. A link for every paper plus a few spot-checks is the fix."],
+          ["Fence it in", "\"Don't cite anything that isn't in the table\" keeps the writing tied to sources you can check."],
+          ["Be specific about scope", "Years, organisms, methods and \"peer-reviewed\" narrow the search to papers you'd actually use."],
+          ["Paywalls", "Claude can only read what your browser can. If you're signed in through the library, it can usually see more."]
+        ],
+        extras: [
+          ["Start from PDFs you already have", "Read every PDF in this folder and add each one to the Literature Table with the same columns. Mark these rows as 'from my folder'."]
+        ] },
+
+      { id: "data-analysis", title: "Data analysis and report",
+        modes: ["files"], time: "about 30 minutes",
+        lede: "Hand Claude a spreadsheet of your own data and get graphs, trends and a short written report, with the analysis shown so you can check it.",
+        before: [
+          "Put <b>a copy of your data file</b> in a folder and connect the folder in Claude Desktop.",
+          "<b>No identifiable human-subjects data.</b> Lab, field and instrument data are fine; anything covered by an IRB protocol stays out.",
+          "If your column names are cryptic, a sentence describing each one (or a codebook file in the folder) helps a lot."
+        ],
+        steps: [
+          { title: "Describe the data first",
+            why: "Everything later depends on Claude reading the columns correctly, so check that before any analysis.",
+            prompt: "Look at the data file in this folder. Before doing any analysis, describe it: what each column seems to be, the units, the number of rows, missing values, and anything that looks like an error or outlier. Ask me about anything you're unsure of.",
+            look: "Correct any misread column now (\"temp is in Celsius, not Fahrenheit\")." },
+          { title: "Explore with graphs",
+            why: "Graphs first shows you what's in the data before anyone runs a test.",
+            prompt: "Make 4–6 graphs that show the most important patterns in this data, such as distributions, trends over time, and comparisons between groups. Save each one as a PNG in a folder called Figures, and tell me in one sentence what each shows.",
+            look: "Do the axes, units and labels make sense? Ask for changes in plain language." },
+          { title: "Test the patterns",
+            why: "Asking for the assumptions and the code keeps the analysis checkable rather than a black box.",
+            prompt: "For the two most interesting patterns, run an appropriate statistical test. Tell me which test you used, why, what it assumes, and whether those assumptions look reasonable for this data. Save the code you ran in a file called analysis.",
+            look: "Would you have chosen the same test? If not, ask why, or tell it which one to use." },
+          { title: "Write the report",
+            why: "Naming the audience sets the level of detail.",
+            prompt: "Write a 2–3 page report for [a lab meeting / a progress report / a collaborator]: the data, the methods, the main findings with the figures, and the limitations. Save it as a Word document called Data Report.",
+            look: "Check that every number in the report matches the analysis output." }
+        ],
+        tips: [
+          ["Describe before analyzing", "Most analysis mistakes start with a misread column. One check up front prevents them."],
+          ["Ask for the code", "Saved code means you, or a student, can rerun and check every number later."],
+          ["Name the audience", "\"For a lab meeting\" and \"for a grant progress report\" produce very different reports."],
+          ["Push back", "If a result looks too good, ask: \"How sure are you? What would change this conclusion?\""]
+        ],
+        extras: [
+          ["Play the skeptical reviewer", "Act as a skeptical reviewer of this analysis. What are the three biggest weaknesses, and how would you address each one?"]
+        ] },
+
+      { id: "grant-check", title: "Check a draft against a funding call",
+        modes: ["browser", "files"], time: "about 20 minutes",
+        lede: "Have Claude read a funding solicitation, turn it into a checklist, and check your draft against it: required sections, page limits, review criteria, and what's missing.",
+        before: [
+          "Put <b>a copy of your draft</b> in a folder and connect it. A rough draft or even a one-page summary works.",
+          "Have the <b>link to the solicitation</b> ready.",
+          "<b>Close tabs you don't want Claude to see</b>, such as email and the LMS."
+        ],
+        steps: [
+          { title: "Turn the call into a checklist",
+            why: "Building the checklist first means your draft gets checked against the real requirements, not a general idea of what grants need.",
+            prompt: "Open this funding solicitation: [link]. Summarize what it requires: eligibility, deadlines, required sections and documents, page limits, formatting rules, and the review criteria. Save it in my folder as a checklist called Solicitation Checklist.",
+            look: "Check a couple of items, like the deadline and page limit, against the page yourself." },
+          { title: "Check your draft",
+            why: "Quoting your draft shows whether Claude actually found the evidence, or just assumed it.",
+            prompt: "Now read my draft in this folder and go through the checklist item by item. Mark each one as met, partly met, or missing, and quote the part of my draft that addresses it.",
+            look: "Look hardest at anything marked \"met\" without a convincing quote." },
+          { title: "Read it like a reviewer",
+            why: "Asking for directness gets you specific feedback instead of polite generalities.",
+            prompt: "Read my draft the way a reviewer for this program would, using the solicitation's review criteria. What are the three strongest parts and the three biggest weaknesses? Be direct.",
+            look: "Treat this as one reader's opinion: good for catching gaps, not a prediction of your score." }
+        ],
+        tips: [
+          ["Rules first, then content", "A checklist built from the actual call is more reliable than asking \"is this a good proposal?\""],
+          ["Ask for quotes", "Evidence from your own text makes the feedback easy to verify."],
+          ["Ask it to be direct", "Without that, feedback tends to be vague and kind."]
+        ],
+        extras: [
+          ["Find other programs that fit", "Based on my draft, search for 3–5 other funding programs this project could fit. For each, give the link, the next deadline, typical award size, and why it fits."]
+        ] },
+
+      { id: "journal-format", title: "Format a manuscript for a journal",
+        modes: ["browser", "files"], time: "about 20 minutes",
+        lede: "Let Claude read a journal's author guidelines and bring your manuscript into line: word counts, section order, reference style and figure requirements.",
+        before: [
+          "Put <b>a copy of your manuscript</b> in a folder and connect it.",
+          "Know the <b>journal</b> (a link to its author guidelines is even better).",
+          "<b>Close tabs you don't want Claude to see.</b>"
+        ],
+        steps: [
+          { title: "Read the guidelines",
+            why: "A checklist gives you something concrete to compare against, and something you can reuse.",
+            prompt: "Open the author guidelines for [journal name] ([link, if you have it]). Make a checklist of every requirement for a research article: word and abstract limits, section order, reference style, figure and table rules, and anything else required at submission. Save it in my folder as Journal Checklist.",
+            look: "Confirm the word limit and reference style against the journal's page." },
+          { title: "Check the manuscript",
+            why: "Seeing the problems before any changes lets you decide what to fix yourself.",
+            prompt: "Check my manuscript in this folder against the checklist. List every place it doesn't comply, with where it is in the document. Don't change anything yet.",
+            look: "" },
+          { title: "Fix the formatting",
+            why: "\"Don't change any wording\" keeps it to formatting, so you don't have to re-read the science.",
+            prompt: "Make a new copy of the manuscript with ' - formatted' added to the name, and fix the formatting issues you found: reference style, section order, headings and so on. Don't change any wording in the scientific content. Then list anything you couldn't fix, such as being over the word limit.",
+            look: "Compare a few references and the abstract against the original." }
+        ],
+        tips: [
+          ["Separate form from content", "Telling it not to change wording makes the result fast to check."],
+          ["Work on a new copy", "Your original stays untouched, so you can compare the two."],
+          ["Check the references", "Reformatting references is where errors creep in. Compare a few against the originals."]
+        ],
+        extras: [
+          ["Draft a cover letter", "Draft a cover letter for submitting this manuscript to [journal], following anything the author guidelines say about cover letters."]
+        ] },
+
+      { id: "figures", title: "Remake figures for publication",
+        modes: ["files"], time: "about 20 minutes",
+        lede: "Regenerate your figures from the original data with consistent fonts, colorblind-safe colors, and the exact size and format a journal or poster needs.",
+        before: [
+          "Put <b>copies of your data files</b> and your current figures (as examples) in a folder and connect it.",
+          "If you're submitting somewhere, have the <b>figure requirements</b> handy: width, file type, resolution."
+        ],
+        steps: [
+          { title: "Match figures to data",
+            why: "Claude needs to know which data each figure came from before it can remake anything.",
+            prompt: "Look at the figures and data files in this folder. Match each figure to the data it came from and describe what it shows. Tell me about any figure you can't trace to a data file.",
+            look: "" },
+          { title: "Get one sample right",
+            why: "Fixing the style on one figure is much faster than fixing it on ten.",
+            prompt: "Propose one style for all the figures: font and sizes, a colorblind-safe palette, line widths, and a width of [e.g., 3.5 inches for a single column]. Remake one figure in that style as a sample and save it. Don't do the rest yet.",
+            look: "Adjust the sample until you like it (\"bigger axis labels\", \"no gridlines\")." },
+          { title: "Remake the rest",
+            why: "Saving the code means the next revision is a rerun, not a redo.",
+            prompt: "Apply that style to every figure. Save each one as both a 300 dpi PNG and a PDF in a folder called Figures - final, and save the code so I can regenerate them later.",
+            look: "Compare each new figure with its original: same data, same values, nothing dropped." }
+        ],
+        tips: [
+          ["One sample first", "Agree on the look with a single figure, then apply it everywhere."],
+          ["Ask for the code", "When the data changes, you rerun it instead of starting over."],
+          ["Name the requirements", "Giving the width, file type and resolution up front prevents a second round."]
+        ],
+        extras: [
+          ["Check accessibility", "Check each figure for problems a reader with color blindness, or a black-and-white printout, would have, and fix them."]
+        ] },
+
+      { id: "poster-talk", title: "Turn a paper into a poster or talk",
+        modes: ["files"], time: "about 25 minutes",
+        lede: "Turn a paper or report you've written into a conference poster or a short talk, ready for you (or a student) to polish.",
+        before: [
+          "Put <b>a copy of the paper</b> and its figures in a folder and connect it.",
+          "Know the <b>format</b>: poster size, or talk length and audience."
+        ],
+        steps: [
+          { title: "Find the story",
+            why: "Agreeing on the main points first is easier than rearranging a finished poster.",
+            prompt: "Read my paper in this folder. In plain language, what are the three main points a [poster / 12-minute talk] should get across to [audience], and which figures support each one? Don't make anything yet.",
+            look: "Is that the story you'd tell? Reorder or swap points now." },
+          { title: "Draft it",
+            why: "Giving the size and a 30-second goal keeps it from becoming the paper in small print.",
+            prompt: "Make a [36 x 48 inch poster / set of about 10 slides] with sections for the question, methods, main results with figures, and conclusions. Keep the text short: someone should get the main point in 30 seconds. Save it as a PowerPoint file.",
+            look: "Open it and check that the figures came through clearly." },
+          { title: "Cut it down",
+            why: "Asking it to cut by a fraction works better than \"make it shorter.\"",
+            prompt: "Cut the text by a third without losing any of the main points. For slides, move details into the speaker notes.",
+            look: "" }
+        ],
+        tips: [
+          ["Story before layout", "Settle the three points first; the design follows."],
+          ["Say who's listening", "A department seminar and an undergraduate symposium need very different levels of detail."],
+          ["Be concrete about length", "\"Cut by a third\" or \"30 seconds\" gets better results than \"shorter.\""]
+        ],
+        extras: [
+          ["Notes for a student presenter", "Write speaker notes a student could use to present this, including likely audience questions and short answers."]
+        ] },
+
+      { id: "paper-library", title: "Organize a folder of papers",
+        modes: ["files"], time: "about 15 minutes",
+        lede: "Turn a downloads folder full of PDFs named like 1-s2.0-S0006…pdf into a library you can actually use: consistent names, topic folders, and a reference list.",
+        before: [
+          "<b>Make a copy of the folder</b> and connect the copy in Claude Desktop."
+        ],
+        steps: [
+          { title: "Identify every paper",
+            why: "Same as archiving: look before touching anything.",
+            prompt: "Look at every PDF in this folder and identify each paper: authors, year, title and journal. List any you can't identify. Don't rename anything yet.",
+            look: "" },
+          { title: "Approve the new names",
+            why: "One example name gets you consistent results.",
+            prompt: "Propose new file names like 'Smith 2021 - Short Title.pdf'. Show me a table of old and new names. Don't rename anything until I approve.",
+            look: "Skim the table for wrong years or authors." },
+          { title: "Rename and build a reference list",
+            why: "A reference list makes the folder searchable and feeds straight into a citation manager.",
+            prompt: "Go ahead and rename them. Then create a spreadsheet called Reference List with one row per paper: authors, year, title, journal, DOI, and a one-sentence summary. Also save the references as a BibTeX file.",
+            look: "Spot-check a couple of DOIs; they're easy to garble." },
+          { title: "Sort into topics",
+            why: "Proposing folders first lets you organize the way you think about your field.",
+            prompt: "Suggest 4–6 topic folders for these papers. Once I approve, move each paper into one. Don't delete anything; put duplicates in a folder called _old.",
+            look: "" }
+        ],
+        tips: [
+          ["Look, plan, act, check", "The same pattern as Archive the semester works for any folder."],
+          ["Ask what it couldn't do", "\"List any you can't identify\" surfaces problems instead of hiding them."],
+          ["Check identifiers", "DOIs and years are where small errors hide. A quick spot-check catches them."]
+        ],
+        extras: [
+          ["Start a literature review", "Use the Reference List to start a Literature Table, then see the Literature review task for next steps."]
+        ] }
+    ] }
+  ]
+};
+</script>
+<script>
+(function () {
+  const SITE = window.SITE_CONFIG || {};
+  const T = window.TASKS;
+  const STORE_KEY = "nsciTrainings.claude-desktop-tasks";
+  const all = [];
+  T.topics.forEach(tp => tp.tasks.forEach(t => all.push(Object.assign({ topic: tp.name }, t))));
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  /* saved state (this browser only), same pattern as the other trainings */
+  let state = {};
+  try { state = JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { /* storage unavailable */ }
+  state.done = state.done || [];
+  const fromHash = all.findIndex(t => t.id === location.hash.slice(1));
+  let current = fromHash >= 0 ? fromHash : Math.min(state.current || 0, all.length - 1);
+  function save() {
+    state.current = current;
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* fine */ }
+  }
+
+  document.title = T.title;
+  document.body.classList.add("training");
+  document.body.innerHTML = `
+    <aside class="sidebar">
+      <div class="brand">
+        <a class="home" href="../">← All trainings</a>
+        <div class="bar"></div>
+        <h1>${T.title}</h1>
+        <p>${T.subtitle || ""}${SITE.presenter ? ` · ${SITE.presenter}` : ""}</p>
+      </div>
+      <nav id="nav"></nav>
+    </aside>
+    <main id="main"></main>`;
+
+  function renderNav() {
+    let html = "", i = 0;
+    T.topics.forEach(tp => {
+      html += `<div class="topic-label">${tp.name}</div>`;
+      tp.tasks.forEach(t => {
+        const idx = i++, done = state.done.includes(t.id);
+        html += `<button class="sec-btn ${idx === current ? "active" : ""} ${done ? "done" : ""}" data-go="${idx}">
+          <span class="num">${done ? "✓" : idx + 1}</span>
+          <span>${t.title}<span class="meta">${t.time || ""}</span></span></button>`;
+      });
+    });
+    document.getElementById("nav").innerHTML = html;
+  }
+
+  const CHIPS = { browser: `<span class="chip browser">Browser</span>`, files: `<span class="chip files">Your files</span>`, artifact: `<span class="chip artifact">Artifact</span>` };
+  const promptBox = p => `<div class="prompt-wrap"><span class="prompt">${esc(p)}</span><button class="copy">Copy</button></div>`;
+
+  function guideBody(t) {
+    return t.blocks.map(b => `<div class="guide-block">
+        <h3 class="block">${b.h}</h3>
+        <p>${b.text}</p>
+        ${b.img ? `<img src="${b.img}" alt="${esc(b.alt || "")}">` : ""}
+      </div>`).join("");
+  }
+
+  function taskBody(t) {
+    return `
+      <div class="chips">${(t.modes || []).map(m => CHIPS[m]).join("")}<span class="chip">${t.time}</span></div>
+
+      <h3 class="block">Before you start</h3>
+      <div class="callout"><ul class="plain">${t.before.map(b => `<li>${b}</li>`).join("")}</ul></div>
+
+      <h3 class="block">Step by step <small>copy each prompt into Claude</small></h3>
+      ${t.steps.map((s, i) => `<div class="step">
+        <h4><span class="n">${i + 1}</span>${s.title}</h4>
+        <p>${s.why}</p>
+        ${promptBox(s.prompt)}
+        ${s.look ? `<p class="look"><b>What to check:</b> ${s.look}</p>` : ""}
+      </div>`).join("")}
+
+      <h3 class="block">Why these prompts work</h3>
+      <div class="tips">${t.tips.map(([h, b]) => `<div class="tip"><b>${h}</b>${b}</div>`).join("")}</div>
+
+      ${t.extras ? `<h3 class="block">Want to go further?</h3>
+      ${t.extras.map(([h, p]) => `<details class="extra"><summary>${h}</summary>${promptBox(p)}</details>`).join("")}` : ""}`;
+  }
+
+  function renderMain() {
+    const t = all[current], done = state.done.includes(t.id);
+    document.getElementById("main").innerHTML = `
+      <div class="eyebrow">${t.topic} · ${current + 1} of ${all.length}</div>
+      <h2 class="title">${t.title}</h2>
+      <p class="lede">${t.lede}</p>
+      ${t.guide ? guideBody(t) : taskBody(t)}
+      <div class="submit-row">
+        <button class="submit" id="doneBtn">${done ? "✓ Done (click to undo)" : "Mark as done"}</button>
+      </div>
+      <div class="nextbar">
+        <button ${current === 0 ? "disabled" : ""} data-go="${current - 1}">← Previous</button>
+        <button ${current === all.length - 1 ? "disabled" : ""} data-go="${current + 1}">Next →</button>
+      </div>`;
+
+    document.querySelectorAll(".copy").forEach(b => b.addEventListener("click", () => {
+      navigator.clipboard.writeText(b.previousElementSibling.textContent).then(() => {
+        b.textContent = "Copied"; setTimeout(() => (b.textContent = "Copy"), 1500);
+      });
+    }));
+    document.getElementById("doneBtn").addEventListener("click", () => {
+      state.done = done ? state.done.filter(id => id !== t.id) : state.done.concat(t.id);
+      save(); renderNav(); renderMain();
+    });
+  }
+
+  function go(i) {
+    current = i; save();
+    history.replaceState(null, "", "#" + all[current].id);
+    renderNav(); renderMain(); window.scrollTo(0, 0);
+  }
+  document.addEventListener("click", e => {
+    const b = e.target.closest("[data-go]");
+    if (b && !b.disabled) go(+b.dataset.go);
+  });
+  window.addEventListener("hashchange", () => {
+    const i = all.findIndex(t => t.id === location.hash.slice(1));
+    if (i >= 0 && i !== current) go(i);
+  });
+  renderNav(); renderMain();
+})();
+</script>
+</body>
+</html>
