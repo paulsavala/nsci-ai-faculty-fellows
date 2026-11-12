@@ -118,7 +118,7 @@ window.MOCK_APP = `
     <div class="mk-item" data-tip="Artifacts: everything Claude has built for you, such as web pages, interactive demos, slide decks and documents, kept in one place so you can reopen and share them.">❏ Artifacts <span class="mk-plus">＋</span></div>
     <div class="mk-item" data-tip="Scheduled: tasks you've asked Claude to run automatically, such as a weekly summary.">◷ Scheduled</div>
     <div class="mk-item" data-tip="Design: make visual designs such as posters, flyers and mockups.">◎ Design</div>
-    <div class="mk-item" data-tip="Customize: add skills and connect other apps (such as Google Drive) so Claude can use them.">▣ Customize</div>
+    <div class="mk-item" data-tip="Customize: add skills and connect other apps so Claude can use them. Only connect personal accounts, such as your personal Google Drive, never your St. Edward’s Google Drive or other university accounts.">▣ Customize</div>
     <div class="mk-group" data-tip="Pinned and Recents: your past conversations. Pin the ones you come back to often.">Pinned ›<br><br>Recents ›</div>
     <div class="mk-acct" data-tip="Your account: your plan (which decides which models you can use) and settings."><span class="mk-av">P</span> Your name · Plan ⌄</div>
   </div>
@@ -578,63 +578,6 @@ window.TASKS = {
             [
               "Ideas for other fields",
               "Suggest 5 concepts from [course] that would make good interactive demos, and say what students would learn from each."
-            ]
-          ]
-        },
-        {
-          "id": "quiz",
-          "title": "Quiz from your notes",
-          "modes": [
-            "files",
-            "browser"
-          ],
-          "time": "about 25 minutes",
-          "lede": "Have Claude write quiz questions from your own notes, then enter them into your LMS for you, in a practice course with no students in it.",
-          "before": [
-            "<b>Use a sandbox or empty course shell in the LMS</b>, never a live course with students. A live course shows rosters and grades."
-          ],
-          "steps": [
-            {
-              "title": "Make a folder, connect it, and open your sandbox course",
-              "why": "On your desktop, make a new folder called <b>Quiz</b> and copy the notes or slides the quiz will cover into it. In Claude, click <b>New</b>, then <b>Project or folder → Add folder</b>, choose <b>Quiz</b>, and click <b>Allow</b> (<a href=\"#connect-folder\">how</a>). In Chrome, make sure the Claude extension is installed and signed in (<a href=\"#browser\">how</a>), and close tabs you don't want Claude to see, such as email and the LMS. Then open your <b>sandbox (practice) course</b> in the LMS and copy the link to its quizzes page; you'll paste it into step 3."
-            },
-            {
-              "title": "Ask for a draft quiz",
-              "why": "Reviewing the questions before anything goes into the LMS is much easier than fixing them there.",
-              "prompt": "Read my notes in this folder on [topic]. Write a [10]-question quiz: [mix of multiple choice and short answer]. Questions should test understanding, not just recall of terms. For multiple choice, make each wrong option a mistake a student might really make. Save it as a document called Quiz Draft with the answers marked.",
-              "look": "Edit any question you don't like, in the file or by telling Claude."
-            },
-            {
-              "title": "Have Claude enter it in your sandbox course",
-              "why": "Pointing Claude at an empty course keeps it away from student information.",
-              "prompt": "Open [link to the quiz page in your sandbox course]. Create a new quiz called [name] and enter the questions from Quiz Draft, with the correct answers and point values. Don't publish it. Stop and ask me if anything is unclear.",
-              "look": "Watch it work the first time. Approve only the LMS site."
-            },
-            {
-              "title": "Ask Claude to check its work",
-              "why": "LMS editors are fiddly, so verify before you copy it to your real course.",
-              "prompt": "Compare the quiz in the LMS with Quiz Draft question by question and tell me about any differences.",
-              "look": "Preview the quiz as a student would, then copy or import it into your real course yourself."
-            }
-          ],
-          "tips": [
-            [
-              "Draft in a file first",
-              "It's much faster to review and edit questions in a document than in the LMS."
-            ],
-            [
-              "Sandbox only",
-              "Claude works in your signed-in browser. Keep it in a course with no students."
-            ],
-            [
-              "Good distractors",
-              "Asking for wrong options based on real student mistakes makes multiple choice far more informative."
-            ]
-          ],
-          "extras": [
-            [
-              "Skip the browser",
-              "Instead of entering it by hand, ask: \"Save the quiz in a format I can import into [your LMS].\" Then import it yourself."
             ]
           ]
         }
