@@ -1405,13 +1405,6 @@ window.TASKS = {
 
   /* ---------- sharing page ---------- */
   const SHEET_URL = SITE.sheetUrl || "";
-  const SHARE_Q = [
-    { key: "tasks", label: "What did you try?" },
-    { key: "what", label: "What did you do?" },
-    { key: "how", label: "How did it go?" },
-    { key: "notes", label: "Details: what worked, what didn't" },
-    { key: "tip", label: "A tip for colleagues" }
-  ];
   const HOW = ["Saved me time", "Worked, with some fixing", "Mixed", "Didn't work for me"];
   function profile() {
     try { return JSON.parse(localStorage.getItem("nsciTrainings.profile")) || {}; } catch (e) { return {}; }
@@ -1467,15 +1460,10 @@ window.TASKS = {
       try { localStorage.setItem("nsciTrainings.profile", JSON.stringify({ name, dept })); } catch (err) { /* fine */ }
       const priv = !!f.get("private");
       if (!SHEET_URL) { status.className = "status err"; status.textContent = "Sharing isn't connected yet."; return; }
-      // Each share is its own entry, so one person can share several experiences.
-      const id = (state.sessionId = state.sessionId || Date.now().toString(36) + Math.random().toString(36).slice(2, 8)) + "-" + Date.now().toString(36);
-      const ns = priv ? "private" : "share";
-      const rows = SHARE_Q.map(q => ({ section: "Share what you tried", activity: "Share what you tried", part: "",
-        question: q.label, questionId: `${STORE_KEY.split(".")[1]}/${ns}-${q.key}`, answer: val[q.key] }));
       btn.disabled = true; status.className = "status"; status.textContent = "Sending…";
       try {
         const res = await fetch(SHEET_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ training: T.title, name, department: dept, sessionId: id, private: priv, rows }) });
+          body: JSON.stringify(Object.assign({ kind: "share", name, department: dept, private: priv }, val)) });
         const data = await res.json();
         if (!data.ok) throw new Error(data.error || "not saved");
       } catch (err) {
@@ -1496,21 +1484,21 @@ window.TASKS = {
     if (!list) return;
     if (!SHEET_URL) { list.innerHTML = `<p class="others-note">Sharing isn't connected yet.</p>`; return; }
     let data;
-    try { data = await (await fetch(`${SHEET_URL}?section=${STORE_KEY.split(".")[1]}/share`)).json(); } catch (e) { data = { ok: false }; }
+    try { data = await (await fetch(`${SHEET_URL}?shares=1`)).json(); } catch (e) { data = { ok: false }; }
     if (!document.getElementById("shareList")) return;
     if (!data.ok) { list.innerHTML = `<p class="others-note">Couldn't load shared experiences right now. Try again in a minute.</p>`; return; }
-    const people = (data.people || []).filter(p => p.answers["share-what"] || p.answers["share-notes"]).reverse(); // newest first
+    const people = data.shares || []; // newest first, public only
     if (!people.length) { list.innerHTML = `<p class="others-note">Nothing shared yet. Be the first!</p>`; return; }
     const byDept = {};
     people.forEach(p => (byDept[p.dept || "Department not given"] = byDept[p.dept || "Department not given"] || []).push(p));
     list.innerHTML = Object.keys(byDept).sort().map(d => `<details class="others-dept" open>
       <summary>${esc(d)} <span class="others-n">${byDept[d].length}</span></summary>
-      ${byDept[d].map(p => { const a = p.answers; return `<div class="share-card">
-        ${a["share-tasks"] ? `<div class="share-tags">${a["share-tasks"].split("; ").map(x => `<span class="chip">${esc(x)}</span>`).join("")}</div>` : ""}
-        ${a["share-what"] ? `<p>${esc(a["share-what"])}</p>` : ""}
-        ${a["share-how"] ? `<p class="share-how">${esc(a["share-how"])}</p>` : ""}
-        ${a["share-notes"] ? `<p>${esc(a["share-notes"])}</p>` : ""}
-        ${a["share-tip"] ? `<p class="share-tip"><b>Tip:</b> ${esc(a["share-tip"])}</p>` : ""}
+      ${byDept[d].map(a => { return `<div class="share-card">
+        ${a.tasks ? `<div class="share-tags">${a.tasks.split("; ").map(x => `<span class="chip">${esc(x)}</span>`).join("")}</div>` : ""}
+        ${a.what ? `<p>${esc(a.what)}</p>` : ""}
+        ${a.how ? `<p class="share-how">${esc(a.how)}</p>` : ""}
+        ${a.notes ? `<p>${esc(a.notes)}</p>` : ""}
+        ${a.tip ? `<p class="share-tip"><b>Tip:</b> ${esc(a.tip)}</p>` : ""}
       </div>`; }).join("")}
     </details>`).join("");
   }

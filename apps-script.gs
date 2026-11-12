@@ -13,6 +13,7 @@ function doPost(e) {
   lock.waitLock(10000); // avoid two submissions writing at once
   try {
     const data = JSON.parse(e.postData.contents);
+    if (data.kind === "share") return json_(saveShare_(data));
     const sheet = getSheet_();
     const now = new Date();
     const rows = (data.rows || []).map(r => [
@@ -26,8 +27,7 @@ function doPost(e) {
       clean_(r.question),
       clean_(r.answer),
       clean_(data.sessionId),
-      clean_(r.questionId),
-      data.private ? "private" : "" // fills the Hide column, so private answers are never shown to others
+      clean_(r.questionId)
     ]);
     if (rows.length) {
       sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, rows[0].length).setValues(rows);
@@ -47,6 +47,7 @@ function doPost(e) {
 // Visiting the bare web-app URL in a browser confirms it's deployed.
 function doGet(e) {
   const p = (e && e.parameter) || {};
+  if (p.shares) return json_(publicShares_());
   if (!p.section) return ContentService.createTextOutput("Training response collector is running.");
   return json_(sharedAnswers_(p.section, p.me || ""));
 }
@@ -84,6 +85,45 @@ function readPeople_(section) {
   return order.map(s => bySession[s])
     .map(p => { Object.keys(p.answers).forEach(k => { if (!p.answers[k]) delete p.answers[k]; }); return p; })
     .filter(p => Object.keys(p.answers).length);
+}
+
+/* ---------- "Share what you tried" (Claude Desktop training) ----------
+   Shares get their own tab, one row per entry. Rows with Private = "yes",
+   or anything typed in Hide, are never shown on the site. */
+const SHARE_TAB = "Claude Desktop Shares";
+const SHARE_HEADERS = ["Timestamp", "Name", "Department", "Private", "Tried", "What they did", "How it went", "Details", "Tip", "Hide"];
+
+function saveShare_(d) {
+  const sheet = tab_(SHARE_TAB, SHARE_HEADERS);
+  sheet.appendRow([new Date(), clean_(d.name), clean_(d.department), d.private ? "yes" : "",
+    clean_(d.tasks), clean_(d.what), clean_(d.how), clean_(d.notes), clean_(d.tip), ""]);
+  CacheService.getScriptCache().remove("shares");
+  return { ok: true };
+}
+
+function publicShares_() {
+  const cache = CacheService.getScriptCache(), hit = cache.get("shares");
+  if (hit) return JSON.parse(hit);
+  const values = tab_(SHARE_TAB, SHARE_HEADERS).getDataRange().getValues();
+  const c = name => SHARE_HEADERS.indexOf(name);
+  const shares = values.slice(1)
+    .filter(r => !String(r[c("Private")]).trim() && !String(r[c("Hide")]).trim())
+    .map(r => ({ dept: String(r[c("Department")] || ""), tasks: String(r[c("Tried")] || ""), what: String(r[c("What they did")] || ""),
+                 how: String(r[c("How it went")] || ""), notes: String(r[c("Details")] || ""), tip: String(r[c("Tip")] || "") }))
+    .reverse(); // newest first
+  const out = { ok: true, shares };
+  try { cache.put("shares", JSON.stringify(out), 60); } catch (err) { /* too big to cache: fine */ }
+  return out;
+}
+
+function tab_(name, headers) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(name) || ss.insertSheet(name);
+  if (sheet.getLastRow() === 0) {
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight("bold");
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
 }
 
 function json_(obj) {
