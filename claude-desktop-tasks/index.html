@@ -37,10 +37,102 @@
   .guide-block { margin: 0 0 36px; }
   .guide-block p { font-size: 16px; line-height: 1.6; margin: 0 0 14px; max-width: 760px; }
   .guide-block img { display: block; max-width: 100%; max-height: 520px; border-radius: 12px; border: 1px solid var(--rule); box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12); }
+  /* interactive app mock */
+  .mk-hint { font-size: 15px; color: var(--body); margin: 0 0 12px; }
+  .mk-scroll { overflow-x: auto; border-radius: 14px; box-shadow: 0 10px 28px rgba(15, 23, 42, 0.18); }
+  .mk-app { display: flex; min-width: 760px; height: 470px; background: #1a1a19; color: #e8e6e1; font-size: 14px; border-radius: 14px; overflow: hidden; }
+  .mk-side { width: 210px; flex: none; background: #232322; border-right: 1px solid #333; padding: 12px 8px; display: flex; flex-direction: column; gap: 2px; }
+  .mk-top { display: flex; align-items: center; gap: 8px; padding: 0 6px 12px; }
+  .mk-dots i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; background: #ff5f57; }
+  .mk-dots i:nth-child(2) { background: #febc2e; } .mk-dots i:nth-child(3) { background: #28c840; }
+  .mk-seg { display: flex; gap: 2px; margin-left: auto; }
+  .mk-ico { padding: 3px 6px; border-radius: 6px; font-size: 13px; color: #c9c7c1; }
+  .mk-ico.mk-on { background: #3a3a38; }
+  .mk-dim { color: #777; }
+  .mk-item { padding: 8px 10px; border-radius: 8px; color: #e8e6e1; display: flex; align-items: center; gap: 6px; }
+  .mk-new { background: #3a3a38; }
+  .mk-plus { margin-left: auto; color: #aaa; }
+  .mk-group { padding: 18px 10px 0; color: #9a978f; font-size: 13px; line-height: 1.1; border-radius: 8px; }
+  .mk-acct { margin-top: auto; padding: 10px; border-top: 1px solid #333; display: flex; align-items: center; gap: 8px; border-radius: 8px; }
+  .mk-av { width: 22px; height: 22px; border-radius: 50%; background: #2e9e4f; display: grid; place-items: center; font-size: 12px; font-weight: 700; color: white; }
+  .mk-main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px 32px; gap: 12px; }
+  .mk-hello { font-family: Georgia, serif; font-size: 30px; color: #f2f0eb; margin-bottom: 6px; }
+  .mk-star { color: #d97757; }
+  .mk-box { width: 100%; max-width: 520px; background: #2f2f2d; border: 1px solid #444; border-radius: 14px; padding: 12px 14px 8px; }
+  .mk-input { color: #8f8c85; padding: 2px 4px 22px; border-radius: 6px; }
+  .mk-row, .mk-ctrl { display: flex; align-items: center; gap: 6px; }
+  .mk-ctrl { width: 100%; max-width: 520px; padding: 0 4px; }
+  .mk-sp { flex: 1; }
+  .mk-pill { padding: 4px 8px; border-radius: 8px; font-size: 13px; color: #e8e6e1; }
+  .mk-pill.mk-dimtxt { color: #9a978f; }
+  .mk-recent { width: 100%; max-width: 520px; margin-top: 18px; padding: 6px; border-radius: 10px; }
+  .mk-rhead { display: flex; justify-content: space-between; color: #9a978f; font-size: 13px; margin-bottom: 8px; }
+  .mk-cards { display: flex; gap: 10px; }
+  .mk-cards div { flex: 1; border: 1px solid #3a3a38; border-radius: 10px; overflow: hidden; font-size: 12px; color: #d6d3cc; padding-bottom: 6px; }
+  .mk-cards i { display: block; height: 46px; margin-bottom: 6px; background: linear-gradient(135deg, #1e3a6e, #0f172a); }
+  .mk-cards div:nth-child(2) i { background: linear-gradient(135deg, #e5e7eb, #93c5fd); }
+  .mk-cards div:nth-child(3) i { background: linear-gradient(135deg, #f1f5f9, #cbd5e1); }
+  .mk-cards div { text-indent: 8px; }
+  [data-tip] { cursor: help; transition: box-shadow 0.12s, background 0.12s; }
+  [data-tip]:hover, [data-tip]:focus, [data-tip].mk-active { outline: none; box-shadow: 0 0 0 2px #3B82F6; background-color: rgba(59, 130, 246, 0.14); }
+  .mk-tip { position: absolute; z-index: 20; max-width: 280px; padding: 10px 14px; border-radius: 10px; background: white; color: var(--ink); font-size: 14px; line-height: 1.45; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.25); pointer-events: none; opacity: 0; transition: opacity 0.12s; }
+  .mk-tip.show { opacity: 1; }
 </style>
 </head>
 <body>
 <script src="../shared/site-config.js?v=3"></script>
+<script>
+/* Interactive mock of the Claude desktop landing page (Getting started → The Claude app).
+   Each element with data-tip shows that text on hover, focus or tap. */
+window.MOCK_APP = `
+<p class="mk-hint">Hover over (or tap) any part of the window to see what it does.</p>
+<div class="mk-scroll"><div class="mk-app">
+  <div class="mk-side">
+    <div class="mk-top">
+      <span class="mk-dots"><i></i><i></i><i></i></span>
+      <span class="mk-ico" data-tip="Show or hide this sidebar.">▯</span>
+      <span class="mk-ico mk-dim">‹ ›</span>
+      <span class="mk-seg">
+        <span class="mk-ico mk-on" data-tip="Chat: the regular Claude you'll use for everything on this site.">💬</span>
+        <span class="mk-ico" data-tip="Code: Claude Code, a separate mode for programming projects. You won't need it here.">&lt;/&gt;</span>
+      </span>
+    </div>
+    <div class="mk-item mk-new" data-tip="New: start a fresh task. Start a new one for each separate job, so Claude isn't distracted by an earlier conversation.">＋ New</div>
+    <div class="mk-item" data-tip="Search: find a past conversation by keyword.">⌕ Search</div>
+    <div class="mk-item" data-tip="Projects: a home for related work, such as one per course. Files and instructions you add to a project are available in every conversation inside it.">▤ Projects</div>
+    <div class="mk-item" data-tip="Artifacts: everything Claude has built for you, such as web pages, interactive demos, slide decks and documents, kept in one place so you can reopen and share them.">❏ Artifacts <span class="mk-plus">＋</span></div>
+    <div class="mk-item" data-tip="Scheduled: tasks you've asked Claude to run automatically, such as a weekly summary.">◷ Scheduled</div>
+    <div class="mk-item" data-tip="Design: make visual designs such as posters, flyers and mockups.">◎ Design</div>
+    <div class="mk-item" data-tip="Customize: add skills and connect other apps (such as Google Drive) so Claude can use them.">▣ Customize</div>
+    <div class="mk-group" data-tip="Pinned and Recents: your past conversations. Pin the ones you come back to often.">Pinned ›<br><br>Recents ›</div>
+    <div class="mk-acct" data-tip="Your account: your plan (which decides which models you can use) and settings."><span class="mk-av">P</span> Your name · Plan ⌄</div>
+  </div>
+  <div class="mk-main">
+    <div class="mk-hello"><span class="mk-star">✳</span> Back at it</div>
+    <div class="mk-box">
+      <div class="mk-input" data-tip="Type what you want here, in plain language. The more specific you are about the result you want, the better.">How can I help you today?</div>
+      <div class="mk-row">
+        <span class="mk-ico" data-tip="Add files or images to this conversation, such as a syllabus or a screenshot.">＋</span>
+        <span class="mk-sp"></span>
+        <span class="mk-ico" data-tip="Dictate: speak instead of typing.">🎙</span>
+        <span class="mk-ico" data-tip="Voice mode: have a spoken conversation with Claude.">〰</span>
+      </div>
+    </div>
+    <div class="mk-ctrl">
+      <span class="mk-pill" data-tip="Project or folder: choose a folder on your computer that Claude can read and change. See Connect a folder.">Project or folder ⌄</span>
+      <span class="mk-sp"></span>
+      <span class="mk-pill" data-tip="Model: which version of Claude does the work. Bigger models are more capable but slower. See Choose a model and effort.">Opus 5.5</span>
+      <span class="mk-pill mk-dimtxt" data-tip="Effort: how long Claude thinks before answering. Raise it for hard problems. See Choose a model and effort.">Medium</span>
+      <span class="mk-pill" data-tip="Permission mode: Manual asks before Claude uses a new tool or website; Auto lets it work on its own. See Permission mode.">Auto</span>
+    </div>
+    <div class="mk-recent" data-tip="Recent artifacts: the last few things Claude built for you. Click one to open it, or View all to see every one.">
+      <div class="mk-rhead"><span>Recent artifacts</span><span>View all</span></div>
+      <div class="mk-cards"><div><i></i>Course website</div><div><i></i>Predator–prey demo</div><div><i></i>Final review</div></div>
+    </div>
+  </div>
+</div></div>
+<div class="mk-tip" id="mkTip" role="tooltip"></div>`;
+</script>
 <script>
 /* =====================================================================
    THIS TRAINING'S CONTENT. Topics hold tasks (step-by-step prompts) or
@@ -56,8 +148,8 @@ window.TASKS = {
       { id: "the-app", title: "The Claude app", guide: true, time: "2 min read",
         lede: "Claude Desktop looks like a chat window, but it can also work with files on your computer and use your web browser. Here's what you'll see when you open it.",
         blocks: [
-          { h: "The main window", img: "img/app-window.png", alt: "The Claude desktop app's main window",
-            text: "<b>New</b> (top left) starts a fresh task. Type what you want in the box in the middle. Your past work is under <b>Recents</b>, and anything Claude has built for you, like a web page or a slide deck, is under <b>Artifacts</b>." },
+          { h: "The main window", mock: true,
+            text: "This is what you see when you open Claude Desktop. Most of the time you only need three things: <b>New</b> to start a task, the <b>message box</b> to say what you want, and the <b>controls under the box</b>." },
           { h: "The three controls under the box", img: "img/compose-box.png", alt: "The message box with Project or folder, model, effort and permission controls",
             text: "Before you start a task, glance at these. <b>Project or folder</b> chooses which folder Claude can work in. <b>Opus 5.5 Medium</b> is the model and how hard it thinks. <b>Auto</b> (or Manual) controls how often Claude stops to ask your permission. Each one has its own page in this section." }
         ] },
@@ -633,6 +725,7 @@ window.TASKS = {
     return t.blocks.map(b => `<div class="guide-block">
         <h3 class="block">${b.h}</h3>
         <p>${b.text}</p>
+        ${b.mock ? window.MOCK_APP : ""}
         ${b.img ? `<img src="${b.img}" alt="${esc(b.alt || "")}">` : ""}
       </div>`).join("");
   }
@@ -674,6 +767,7 @@ window.TASKS = {
         <button ${current === all.length - 1 ? "disabled" : ""} data-go="${current + 1}">Next →</button>
       </div>`;
 
+    wireMock();
     document.querySelectorAll(".copy").forEach(b => b.addEventListener("click", () => {
       navigator.clipboard.writeText(b.previousElementSibling.textContent).then(() => {
         b.textContent = "Copied"; setTimeout(() => (b.textContent = "Copy"), 1500);
@@ -683,6 +777,36 @@ window.TASKS = {
       state.done = done ? state.done.filter(id => id !== t.id) : state.done.concat(t.id);
       save(); renderNav(); renderMain();
     });
+  }
+
+  // tooltips for the app mock: hover, keyboard focus, or tap
+  function wireMock() {
+    const tip = document.getElementById("mkTip");
+    if (!tip) return;
+    let active = null;
+    const show = el => {
+      if (active) active.classList.remove("mk-active");
+      active = el; el.classList.add("mk-active");
+      tip.textContent = el.dataset.tip;
+      const r = el.getBoundingClientRect();
+      tip.classList.add("show");
+      const w = tip.offsetWidth, h = tip.offsetHeight;
+      let left = r.left + window.scrollX + r.width / 2 - w / 2;
+      left = Math.max(8, Math.min(left, window.scrollX + document.documentElement.clientWidth - w - 8));
+      let top = r.bottom + window.scrollY + 8;
+      if (r.bottom + h + 16 > window.innerHeight) top = r.top + window.scrollY - h - 8;
+      tip.style.left = left + "px"; tip.style.top = top + "px";
+    };
+    const hide = () => { tip.classList.remove("show"); if (active) active.classList.remove("mk-active"); active = null; };
+    document.querySelectorAll("[data-tip]").forEach(el => {
+      el.tabIndex = 0;
+      el.addEventListener("mouseenter", () => show(el));
+      el.addEventListener("mouseleave", hide);
+      el.addEventListener("focus", () => show(el));
+      el.addEventListener("blur", hide);
+      el.addEventListener("click", e => { e.stopPropagation(); active === el ? hide() : show(el); });
+    });
+    document.addEventListener("click", hide);
   }
 
   function go(i) {
