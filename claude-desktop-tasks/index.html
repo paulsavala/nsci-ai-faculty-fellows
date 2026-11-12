@@ -92,6 +92,8 @@
   .quiz-q.right .quiz-why { color: var(--green); }
   .quiz-q.wrong .quiz-why { color: var(--red); }
   .quiz-pass { background: #DCFCE7; color: #166534; font-weight: 700; border-radius: 12px; padding: 12px 16px; margin: 0 0 16px; }
+  .vid-tag { margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: #1E3A8A; color: #BFDBFE; font-size: 10px; letter-spacing: 0.5px; }
+  .vid-dot { color: #93C5FD; font-size: 11px; }
 </style>
 </head>
 <body>
@@ -152,6 +154,8 @@ window.MOCK_APP = `
 /* =====================================================================
    THIS TRAINING'S CONTENT. Topics hold tasks (step-by-step prompts) or
    guide pages (guide: true, with blocks of text and screenshots).
+   Add youtubeId: "..." (and optionally videoMins: "8 min") to any task
+   or guide page to embed a video there; the sidebar marks it with ▶.
    Each task: topic, title, mode ("files", "browser", or both), time, lede,
    before (checklist), steps [{title, why, prompt, look}], tips, extras.
    ===================================================================== */
@@ -1288,12 +1292,12 @@ window.TASKS = {
   function renderNav() {
     let html = "", i = 0;
     T.topics.forEach(tp => {
-      html += `<div class="topic-label">${tp.name}</div>`;
+      html += `<div class="topic-label">${tp.name}${tp.tasks.some(t => t.youtubeId) ? ` <span class="vid-tag">▶ video</span>` : ""}</div>`;
       tp.tasks.forEach(t => {
         const idx = i++, done = state.done.includes(t.id), lock = locked(idx);
         html += `<button class="sec-btn ${idx === current ? "active" : ""} ${done ? "done" : ""} ${lock ? "locked" : ""}" data-go="${idx}" ${lock ? "disabled" : ""}>
           <span class="num">${done ? "✓" : lock ? "🔒" : idx + 1}</span>
-          <span>${t.title}<span class="meta">${lock ? "pass the policy quiz first" : t.time || ""}</span></span></button>`;
+          <span>${t.title}${t.youtubeId ? ` <span class="vid-dot" title="Has a video">▶</span>` : ""}<span class="meta">${lock ? "pass the policy quiz first" : t.time || ""}</span></span></button>`;
       });
     });
     document.getElementById("nav").innerHTML = html;
@@ -1398,6 +1402,8 @@ window.TASKS = {
       <div class="eyebrow">${t.topic} · ${current + 1} of ${all.length}</div>
       <h2 class="title">${t.title}</h2>
       <p class="lede">${t.lede}</p>
+      ${t.youtubeId ? `<h3 class="block" id="video">Watch it done <small>${t.videoMins || ""}</small></h3>
+      <div class="video"><iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(t.youtubeId)}?rel=0" title="${esc(t.title)} video" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe></div>` : ""}
       ${t.policy ? policyBody(t) : t.guide ? guideBody(t) : taskBody(t)}
       ${t.policy ? "" : `<div class="submit-row">
         <button class="submit" id="doneBtn">${done ? "✓ Done (click to undo)" : "Mark as done"}</button>
