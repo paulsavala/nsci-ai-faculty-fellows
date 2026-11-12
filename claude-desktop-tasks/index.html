@@ -77,6 +77,21 @@
   [data-tip]:hover, [data-tip]:focus, [data-tip].mk-active { outline: none; box-shadow: 0 0 0 2px #3B82F6; background-color: rgba(59, 130, 246, 0.14); }
   .mk-tip { position: absolute; z-index: 20; max-width: 280px; padding: 10px 14px; border-radius: 10px; background: white; color: var(--ink); font-size: 14px; line-height: 1.45; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.25); pointer-events: none; opacity: 0; transition: opacity 0.12s; }
   .mk-tip.show { opacity: 1; }
+  /* policy quiz */
+  .sec-btn.locked { opacity: 0.45; cursor: not-allowed; }
+  .sec-btn.locked:hover { background: none; }
+  .quiz-q { border: 1px solid var(--rule); border-radius: 14px; background: white; padding: 18px 24px 14px; margin: 0 0 14px; }
+  .quiz-q legend { display: flex; gap: 12px; align-items: baseline; font-size: 16px; font-weight: 500; color: var(--ink); line-height: 1.45; padding: 0; float: left; width: 100%; margin-bottom: 10px; }
+  .quiz-q legend .n { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--navy); color: white; display: grid; place-items: center; font-size: 13px; }
+  .quiz-opt { display: flex; gap: 10px; align-items: flex-start; clear: both; padding: 7px 10px 7px 38px; border-radius: 8px; font-size: 15px; line-height: 1.45; cursor: pointer; }
+  .quiz-opt:hover { background: var(--card); }
+  .quiz-opt input { margin-top: 4px; }
+  .quiz-q.right { border-color: var(--green); }
+  .quiz-q.wrong { border-color: var(--red); }
+  .quiz-why { margin: 8px 0 0 38px; font-size: 14px; }
+  .quiz-q.right .quiz-why { color: var(--green); }
+  .quiz-q.wrong .quiz-why { color: var(--red); }
+  .quiz-pass { background: #DCFCE7; color: #166534; font-weight: 700; border-radius: 12px; padding: 12px 16px; margin: 0 0 16px; }
 </style>
 </head>
 <body>
@@ -144,6 +159,135 @@ window.TASKS = {
   "title": "Getting Things Done with Claude Desktop",
   "subtitle": "NSCI Faculty Workshop",
   "topics": [
+    {
+      "name": "Start here",
+      "tasks": [
+        {
+          "id": "policy",
+          "title": "Acceptable AI use policy",
+          "policy": true,
+          "time": "about 10 minutes",
+          "lede": "Before anything else: the key points of St. Edward's <b>Acceptable Use of Artificial Intelligence Policy</b> (May 2026), and a short quiz. You need to pass the quiz before the rest of this training unlocks.",
+          "points": [
+            [
+              "Protected data never goes into any AI tool",
+              "No student records (grades, ID numbers, enrollment), health, financial or personnel information, approved tool or not. Remove those columns, mask names, or use made-up data with similar properties instead."
+            ],
+            [
+              "Know what's approved",
+              "Approved: Google Gemini and NotebookLM, Zoom AI Companion, and AI features in Canvas, Adobe and Smartsheet. Other tools (ChatGPT, Copilot and similar) are unsupported: fine for exploring, never with sensitive information. Check the <a href=\"https://support.stedwards.edu/TDClient/96/Portal/KB/ArticleDet?ID=999\" target=\"_blank\" rel=\"noopener\">current approved list</a>."
+            ],
+            [
+              "Be careful with extensions and add-ons",
+              "AI browser extensions need broad permissions, so use extreme caution. Unapproved AI add-ons for Canvas, Google Workspace, Box or Zoom are prohibited. Never give an AI tool your password."
+            ],
+            [
+              "Meetings",
+              "No third-party recorder bots (Otter, Fireflies, Read.ai) in non-public meetings. If you use an approved tool to record or transcribe, tell everyone at the start."
+            ],
+            [
+              "You're responsible for the output",
+              "Check everything an AI produces before you use, post or send it. Disclose significant AI use, and don't generate university logos, branding or Topper without Marketing's approval."
+            ],
+            [
+              "Your courses, your rules",
+              "Faculty decide what AI use is acceptable in their courses and must state it clearly in the syllabus."
+            ]
+          ],
+          "note": "Claude isn't on the university's approved list, so this training treats it as an unsupported tool: every task uses only your own, non-sensitive materials. If you're unsure whether something is sensitive, leave it out or ask IET at <a href=\"mailto:support@stedwards.edu\">support@stedwards.edu</a>.",
+          "quiz": [
+            {
+              "q": "You have a spreadsheet of exam scores with student names and ID numbers, and you'd like an AI tool to make a histogram of the scores. What should you do?",
+              "options": [
+                "Upload it as is, as long as the tool is a paid version",
+                "Upload it only to Gemini, since Gemini is approved",
+                "Remove the names and ID numbers first, or use made-up scores with a similar spread",
+                "Email it to IET and ask them to run it"
+              ],
+              "answer": 2,
+              "why": "Protected data never goes into any AI tool, approved or not. The policy's suggested fixes are removing identifying columns, masking, or synthetic data."
+            },
+            {
+              "q": "A colleague says: \"Gemini is university-approved, so it's fine to paste in a student's accommodation letter.\" Are they right?",
+              "options": [
+                "Yes, approved tools are cleared for any university data",
+                "Yes, as long as you delete the conversation afterward",
+                "No, protected information must never be entered into any AI tool, even an approved one",
+                "No, but only because Gemini isn't approved for faculty"
+              ],
+              "answer": 2,
+              "why": "Approval covers security and support, not permission to enter protected data. The rule applies to every AI system."
+            },
+            {
+              "q": "Which is true about using a tool that isn't on the university's approved list?",
+              "options": [
+                "It's prohibited for any university-related work",
+                "You may explore it, but never with sensitive or personally identifiable university information",
+                "It's fine for anything, since the university doesn't monitor it",
+                "You must get IET approval before trying it at all"
+              ],
+              "answer": 1,
+              "why": "Unsupported tools can be used for experimentation, but entering sensitive or personal university data into them is prohibited with no exceptions."
+            },
+            {
+              "q": "While working in your browser, an AI tool asks for your St. Edward's password so it can log in to a site for you. What should you do?",
+              "options": [
+                "Give it the password just this once",
+                "Give it a temporary password and change it later",
+                "Never share it: giving a password to an AI tool violates university policy",
+                "Share it only if the tool is approved"
+              ],
+              "answer": 2,
+              "why": "Passwords must never be given to AI tools. Log in yourself, or skip that part of the task."
+            },
+            {
+              "q": "You want automatic notes from a department meeting on Zoom. Which is acceptable?",
+              "options": [
+                "Invite an Otter.ai bot to the meeting",
+                "Use Zoom AI Companion and tell participants at the start",
+                "Use any transcription bot, as long as you delete the transcript later",
+                "Record on your phone and upload it to an AI tool"
+              ],
+              "answer": 1,
+              "why": "Third-party recorder bots are prohibited in non-public meetings. Approved tools like Zoom AI Companion are fine, with notice to participants."
+            },
+            {
+              "q": "Claude writes an answer key for your practice exam. Before you post it for students:",
+              "options": [
+                "Post it as is; the AI provider is responsible for errors",
+                "Post it with a note that AI wrote it, so you aren't responsible",
+                "Check the answers yourself; you're responsible for anything you publish",
+                "Only check it if students complain"
+              ],
+              "answer": 2,
+              "why": "AI output must be verified by a person, and the user, not the AI provider, is responsible for what's published."
+            },
+            {
+              "q": "You'd like Claude to design a course website featuring the St. Edward's logo and Topper. What does the policy say?",
+              "options": [
+                "That's fine for course materials",
+                "Only with review and approval from University Marketing and Communications",
+                "That's fine if the site is only shared with students",
+                "That's fine if you disclose AI was used"
+              ],
+              "answer": 1,
+              "why": "Generating or manipulating university logos, branding or Topper requires approval from Marketing and Communications (brand@stedwards.edu)."
+            },
+            {
+              "q": "What does the policy say about student AI use in your own courses?",
+              "options": [
+                "Students may never use AI in coursework",
+                "IET decides what's allowed in each course",
+                "Students may use any approved tool however they like",
+                "You decide what's acceptable, and must state it clearly in your syllabus"
+              ],
+              "answer": 3,
+              "why": "Faculty determine acceptable AI use in their courses and must articulate it in the syllabus."
+            }
+          ]
+        }
+      ]
+    },
     {
       "name": "Getting started",
       "tasks": [
@@ -1175,6 +1319,10 @@ window.TASKS = {
   state.done = state.done || [];
   const fromHash = all.findIndex(t => t.id === location.hash.slice(1));
   let current = fromHash >= 0 ? fromHash : Math.min(state.current || 0, all.length - 1);
+  // The policy quiz gates everything after it.
+  const GATE = all.findIndex(t => t.policy);
+  const locked = i => GATE >= 0 && !state.policyPassed && i > GATE;
+  if (locked(current)) current = GATE;
   function save() {
     state.current = current;
     try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* fine */ }
@@ -1199,10 +1347,10 @@ window.TASKS = {
     T.topics.forEach(tp => {
       html += `<div class="topic-label">${tp.name}</div>`;
       tp.tasks.forEach(t => {
-        const idx = i++, done = state.done.includes(t.id);
-        html += `<button class="sec-btn ${idx === current ? "active" : ""} ${done ? "done" : ""}" data-go="${idx}">
-          <span class="num">${done ? "✓" : idx + 1}</span>
-          <span>${t.title}<span class="meta">${t.time || ""}</span></span></button>`;
+        const idx = i++, done = state.done.includes(t.id), lock = locked(idx);
+        html += `<button class="sec-btn ${idx === current ? "active" : ""} ${done ? "done" : ""} ${lock ? "locked" : ""}" data-go="${idx}" ${lock ? "disabled" : ""}>
+          <span class="num">${done ? "✓" : lock ? "🔒" : idx + 1}</span>
+          <span>${t.title}<span class="meta">${lock ? "pass the policy quiz first" : t.time || ""}</span></span></button>`;
       });
     });
     document.getElementById("nav").innerHTML = html;
@@ -1218,6 +1366,65 @@ window.TASKS = {
         ${b.mock ? window.MOCK_APP : ""}
         ${b.img ? `<img src="${b.img}" alt="${esc(b.alt || "")}">` : ""}
       </div>`).join("");
+  }
+
+  function policyBody(t) {
+    const ans = state.quizAnswers || {};
+    return `
+      <div class="chips"><span class="chip">${t.time}</span></div>
+      <h3 class="block">The policy in six points</h3>
+      <div class="tips">${t.points.map(([h, b]) => `<div class="tip"><b>${h}</b>${b}</div>`).join("")}</div>
+      <div class="callout" style="margin-top:16px">${t.note}</div>
+
+      <h3 class="block" id="quiz">Quiz <small>answer all ${t.quiz.length} correctly to continue</small></h3>
+      ${state.policyPassed ? `<div class="quiz-pass">✓ You passed the quiz. The rest of the training is unlocked.</div>` : ""}
+      <form id="quizForm">
+      ${t.quiz.map((q, qi) => `<fieldset class="quiz-q" id="qq${qi}">
+        <legend><span class="n">${qi + 1}</span>${esc(q.q)}</legend>
+        ${q.options.map((o, oi) => `<label class="quiz-opt"><input type="radio" name="q${qi}" value="${oi}" ${String(ans[qi]) === String(oi) ? "checked" : ""}> ${esc(o)}</label>`).join("")}
+        <p class="quiz-why" hidden></p>
+      </fieldset>`).join("")}
+      <div class="submit-row">
+        <button class="submit" type="submit">Check my answers</button>
+        <span class="status" id="quizStatus"></span>
+      </div>
+      </form>`;
+  }
+
+  function wireQuiz(t) {
+    const form = document.getElementById("quizForm");
+    if (!form) return;
+    form.addEventListener("change", e => {
+      state.quizAnswers = state.quizAnswers || {};
+      state.quizAnswers[e.target.name.slice(1)] = e.target.value; save();
+    });
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      let right = 0, firstWrong = null;
+      t.quiz.forEach((q, qi) => {
+        const box = document.getElementById("qq" + qi), why = box.querySelector(".quiz-why");
+        const pick = form.querySelector(`input[name="q${qi}"]:checked`);
+        const ok = pick && +pick.value === q.answer;
+        box.classList.toggle("right", !!ok); box.classList.toggle("wrong", !ok);
+        why.hidden = false;
+        why.textContent = !pick ? "Choose an answer." : ok ? "Correct. " + q.why : "Not quite. Read the policy point above and try again.";
+        if (ok) right++; else if (firstWrong === null) firstWrong = box;
+      });
+      const status = document.getElementById("quizStatus");
+      if (right === t.quiz.length) {
+        state.policyPassed = true;
+        if (!state.done.includes(t.id)) state.done.push(t.id);
+        save(); renderNav();
+        status.className = "status ok";
+        status.innerHTML = "All correct. The rest of the training is unlocked.";
+        const nb = document.querySelector('.nextbar button[data-go="' + (current + 1) + '"]');
+        if (nb) nb.disabled = false;
+      } else {
+        status.className = "status err";
+        status.textContent = `${right} of ${t.quiz.length} correct. Fix the ones marked in red and check again.`;
+        firstWrong.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    });
   }
 
   function taskBody(t) {
@@ -1248,22 +1455,24 @@ window.TASKS = {
       <div class="eyebrow">${t.topic} · ${current + 1} of ${all.length}</div>
       <h2 class="title">${t.title}</h2>
       <p class="lede">${t.lede}</p>
-      ${t.guide ? guideBody(t) : taskBody(t)}
-      <div class="submit-row">
+      ${t.policy ? policyBody(t) : t.guide ? guideBody(t) : taskBody(t)}
+      ${t.policy ? "" : `<div class="submit-row">
         <button class="submit" id="doneBtn">${done ? "✓ Done (click to undo)" : "Mark as done"}</button>
-      </div>
+      </div>`}
       <div class="nextbar">
         <button ${current === 0 ? "disabled" : ""} data-go="${current - 1}">← Previous</button>
-        <button ${current === all.length - 1 ? "disabled" : ""} data-go="${current + 1}">Next →</button>
+        <button ${current === all.length - 1 || locked(current + 1) ? "disabled" : ""} data-go="${current + 1}">Next →</button>
       </div>`;
 
     wireMock();
+    wireQuiz(t);
     document.querySelectorAll(".copy").forEach(b => b.addEventListener("click", () => {
       navigator.clipboard.writeText(b.previousElementSibling.textContent).then(() => {
         b.textContent = "Copied"; setTimeout(() => (b.textContent = "Copy"), 1500);
       });
     }));
-    document.getElementById("doneBtn").addEventListener("click", () => {
+    const doneBtn = document.getElementById("doneBtn");
+    if (doneBtn) doneBtn.addEventListener("click", () => {
       state.done = done ? state.done.filter(id => id !== t.id) : state.done.concat(t.id);
       save(); renderNav(); renderMain();
     });
@@ -1300,6 +1509,7 @@ window.TASKS = {
   }
 
   function go(i) {
+    if (locked(i)) i = GATE;
     current = i; save();
     history.replaceState(null, "", "#" + all[current].id);
     renderNav(); renderMain(); window.scrollTo(0, 0);
@@ -1311,7 +1521,9 @@ window.TASKS = {
   window.addEventListener("hashchange", () => {
     const i = all.findIndex(t => t.id === location.hash.slice(1));
     if (i >= 0 && i !== current) go(i);
+    else if (i >= 0 && locked(i)) go(GATE);
   });
+  if (location.hash && current !== fromHash) history.replaceState(null, "", "#" + all[current].id);
   renderNav(); renderMain();
 })();
 </script>
