@@ -94,6 +94,23 @@
   .quiz-pass { background: #DCFCE7; color: #166534; font-weight: 700; border-radius: 12px; padding: 12px 16px; margin: 0 0 16px; }
   .vid-tag { margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: #1E3A8A; color: #BFDBFE; font-size: 10px; letter-spacing: 0.5px; }
   .vid-dot { color: #93C5FD; font-size: 11px; }
+  /* sharing page */
+  .share-who { display: flex; gap: 16px; flex-wrap: wrap; }
+  .share-who label { flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 6px; font-weight: 500; color: var(--ink); font-size: 15px; }
+  .share-who input, .share-who select { padding: 10px 12px; border: 1px solid var(--rule); border-radius: 10px; font: inherit; font-size: 15px; background: var(--bg); color: var(--ink); }
+  .q label small { font-weight: 400; color: var(--muted); }
+  .share-checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 6px 16px; }
+  .share-checks label { display: flex; gap: 8px; align-items: baseline; font-weight: 400; font-size: 15px; margin: 0; cursor: pointer; }
+  .share-private { display: flex; gap: 10px; align-items: baseline; margin-top: 22px; padding: 12px 14px; border-radius: 10px; background: var(--card); font-size: 15px; cursor: pointer; }
+  .share-list .others-dept { background: white; border: 1px solid var(--rule); border-radius: 12px; padding: 0 18px 8px; margin-bottom: 12px; }
+  .share-card { border-top: 1px solid var(--rule); padding: 12px 0; }
+  .share-card p { margin: 6px 0; font-size: 15px; line-height: 1.5; white-space: pre-wrap; }
+  .share-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .share-tags .chip { font-size: 12px; padding: 3px 10px; }
+  .share-how { font-weight: 700; color: var(--ink); }
+  .share-tip { background: var(--card); border-radius: 8px; padding: 8px 12px; }
+  .share-nudge { margin-top: 40px; padding: 16px 20px; border-radius: 12px; background: var(--blue-soft); color: var(--ink); font-size: 15px; }
+  .share-nudge a { font-weight: 700; }
 </style>
 </head>
 <body>
@@ -1247,6 +1264,18 @@ window.TASKS = {
           ]
         }
       ]
+    },
+    {
+      "name": "Share",
+      "tasks": [
+        {
+          "id": "share",
+          "title": "Share what you tried",
+          "share": true,
+          "time": "about 5 minutes",
+          "lede": "The tasks here are ideas, not assignments. Whatever you tried, one of these, a variation, or something completely different, tell us what you did and how it went. Your experience is the best inspiration for your colleagues."
+        }
+      ]
     }
   ]
 };
@@ -1374,6 +1403,118 @@ window.TASKS = {
     });
   }
 
+  /* ---------- sharing page ---------- */
+  const SHEET_URL = SITE.sheetUrl || "";
+  const SHARE_Q = [
+    { key: "tasks", label: "What did you try?" },
+    { key: "what", label: "What did you do?" },
+    { key: "how", label: "How did it go?" },
+    { key: "notes", label: "Details: what worked, what didn't" },
+    { key: "tip", label: "A tip for colleagues" }
+  ];
+  const HOW = ["Saved me time", "Worked, with some fixing", "Mixed", "Didn't work for me"];
+  function profile() {
+    try { return JSON.parse(localStorage.getItem("nsciTrainings.profile")) || {}; } catch (e) { return {}; }
+  }
+
+  function shareBody() {
+    const who = profile(), pre = state.sharePrefill;
+    const ideas = all.filter(t => !t.guide && !t.policy && !t.share);
+    return `
+      <div class="chips"><span class="chip">about 5 minutes</span></div>
+      <div class="callout"><b>Shared answers are public.</b> What you write here (but not your name) is shown on this page, grouped by department, to anyone who visits this site. To keep an answer private, check <b>Keep this private</b> below: it will only be seen by Paul Savala.</div>
+
+      <h3 class="block">Tell us how it went</h3>
+      <form id="shareForm" class="activity">
+        <div class="share-who">
+          <label>Your name<input name="name" value="${esc(who.name || "")}" autocomplete="name"></label>
+          <label>Department<select name="dept"><option value="">Choose…</option>${(SITE.departments || []).map(d => `<option ${d === who.dept ? "selected" : ""}>${d}</option>`).join("")}</select></label>
+        </div>
+        <div class="q"><label>What did you try? <small>check any that apply</small></label>
+          <div class="share-checks">${ideas.map(t => `<label><input type="checkbox" name="tasks" value="${esc(t.title)}" ${pre === t.id ? "checked" : ""}> ${t.title}</label>`).join("")}
+            <label><input type="checkbox" name="tasks" value="Something else"> Something else</label></div></div>
+        <div class="q"><label for="sh-what">What did you do?</label>
+          <textarea id="sh-what" name="what" placeholder="For example: made a practice exam for Organic II from my old exams and lecture notes."></textarea></div>
+        <div class="q"><label>How did it go?</label>
+          <div class="share-checks">${HOW.map(h => `<label><input type="radio" name="how" value="${h}"> ${h}</label>`).join("")}</div></div>
+        <div class="q"><label for="sh-notes">Details: what worked, what didn't?</label>
+          <textarea id="sh-notes" name="notes"></textarea></div>
+        <div class="q"><label for="sh-tip">A tip for colleagues <small>optional</small></label>
+          <textarea id="sh-tip" name="tip" placeholder="A prompt that worked well, a mistake to avoid…"></textarea></div>
+        <label class="share-private"><input type="checkbox" name="private"> <span><b>Keep this private.</b> Only Paul Savala will see it; it won't appear on this page.</span></label>
+        <div class="submit-row">
+          <button class="submit" type="submit">Share</button>
+          <span class="status" id="shareStatus"></span>
+        </div>
+      </form>
+
+      <h3 class="block">What colleagues tried <small>names are never shown</small></h3>
+      <div id="shareList" class="share-list"><p class="others-note">Loading…</p></div>`;
+  }
+
+  function wireShare() {
+    const form = document.getElementById("shareForm");
+    if (!form) return;
+    loadShares();
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+      const f = new FormData(form), status = document.getElementById("shareStatus"), btn = form.querySelector(".submit");
+      const name = (f.get("name") || "").trim(), dept = f.get("dept") || "";
+      const val = { tasks: f.getAll("tasks").join("; "), what: (f.get("what") || "").trim(), how: f.get("how") || "",
+                    notes: (f.get("notes") || "").trim(), tip: (f.get("tip") || "").trim() };
+      if (!name || !dept) { status.className = "status err"; status.textContent = "Please add your name and department."; return; }
+      if (!val.what && !val.notes) { status.className = "status err"; status.textContent = "Please tell us a little about what you did."; return; }
+      try { localStorage.setItem("nsciTrainings.profile", JSON.stringify({ name, dept })); } catch (err) { /* fine */ }
+      const priv = !!f.get("private");
+      if (!SHEET_URL) { status.className = "status err"; status.textContent = "Sharing isn't connected yet."; return; }
+      // Each share is its own entry, so one person can share several experiences.
+      const id = (state.sessionId = state.sessionId || Date.now().toString(36) + Math.random().toString(36).slice(2, 8)) + "-" + Date.now().toString(36);
+      const ns = priv ? "private" : "share";
+      const rows = SHARE_Q.map(q => ({ section: "Share what you tried", activity: "Share what you tried", part: "",
+        question: q.label, questionId: `${STORE_KEY.split(".")[1]}/${ns}-${q.key}`, answer: val[q.key] }));
+      btn.disabled = true; status.className = "status"; status.textContent = "Sending…";
+      try {
+        const res = await fetch(SHEET_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ training: T.title, name, department: dept, sessionId: id, private: priv, rows }) });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || "not saved");
+      } catch (err) {
+        btn.disabled = false; status.className = "status err";
+        status.textContent = "Couldn't send. Check your connection and try again; your answers are still here."; return;
+      }
+      if (!state.done.includes("share")) state.done.push("share");
+      delete state.sharePrefill; save(); renderNav();
+      form.reset(); form.elements.namedItem("name").value = name; form.elements.namedItem("dept").value = dept; btn.disabled = false;
+      status.className = "status ok";
+      status.textContent = priv ? "✓ Sent privately to Paul. Thank you!" : "✓ Shared. Thank you! It will appear below within a minute.";
+      setTimeout(loadShares, 1500);
+    });
+  }
+
+  async function loadShares() {
+    const list = document.getElementById("shareList");
+    if (!list) return;
+    if (!SHEET_URL) { list.innerHTML = `<p class="others-note">Sharing isn't connected yet.</p>`; return; }
+    let data;
+    try { data = await (await fetch(`${SHEET_URL}?section=${STORE_KEY.split(".")[1]}/share`)).json(); } catch (e) { data = { ok: false }; }
+    if (!document.getElementById("shareList")) return;
+    if (!data.ok) { list.innerHTML = `<p class="others-note">Couldn't load shared experiences right now. Try again in a minute.</p>`; return; }
+    const people = (data.people || []).filter(p => p.answers["share-what"] || p.answers["share-notes"]).reverse(); // newest first
+    if (!people.length) { list.innerHTML = `<p class="others-note">Nothing shared yet. Be the first!</p>`; return; }
+    const byDept = {};
+    people.forEach(p => (byDept[p.dept || "Department not given"] = byDept[p.dept || "Department not given"] || []).push(p));
+    list.innerHTML = Object.keys(byDept).sort().map(d => `<details class="others-dept" open>
+      <summary>${esc(d)} <span class="others-n">${byDept[d].length}</span></summary>
+      ${byDept[d].map(p => { const a = p.answers; return `<div class="share-card">
+        ${a["share-tasks"] ? `<div class="share-tags">${a["share-tasks"].split("; ").map(x => `<span class="chip">${esc(x)}</span>`).join("")}</div>` : ""}
+        ${a["share-what"] ? `<p>${esc(a["share-what"])}</p>` : ""}
+        ${a["share-how"] ? `<p class="share-how">${esc(a["share-how"])}</p>` : ""}
+        ${a["share-notes"] ? `<p>${esc(a["share-notes"])}</p>` : ""}
+        ${a["share-tip"] ? `<p class="share-tip"><b>Tip:</b> ${esc(a["share-tip"])}</p>` : ""}
+      </div>`; }).join("")}
+    </details>`).join("");
+  }
+
   function taskBody(t) {
     return `
       <div class="chips">${(t.modes || []).map(m => CHIPS[m]).join("")}<span class="chip">${t.time}</span></div>
@@ -1404,8 +1545,9 @@ window.TASKS = {
       <p class="lede">${t.lede}</p>
       ${t.youtubeId ? `<h3 class="block" id="video">Watch it done <small>${t.videoMins || ""}</small></h3>
       <div class="video"><iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(t.youtubeId)}?rel=0" title="${esc(t.title)} video" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe></div>` : ""}
-      ${t.policy ? policyBody(t) : t.guide ? guideBody(t) : taskBody(t)}
-      ${t.policy ? "" : `<div class="submit-row">
+      ${t.policy ? policyBody(t) : t.share ? shareBody() : t.guide ? guideBody(t) : taskBody(t)}
+      ${!t.guide && !t.policy && !t.share ? `<div class="share-nudge">Tried this, something like it, or something else entirely? <a href="#share" data-share="${t.id}">Share how it went →</a></div>` : ""}
+      ${t.policy || t.share ? "" : `<div class="submit-row">
         <button class="submit" id="doneBtn">${done ? "✓ Done (click to undo)" : "Mark as done"}</button>
       </div>`}
       <div class="nextbar">
@@ -1415,6 +1557,9 @@ window.TASKS = {
 
     wireMock();
     wireQuiz(t);
+    wireShare();
+    const nudge = document.querySelector("[data-share]");
+    if (nudge) nudge.addEventListener("click", () => { state.sharePrefill = nudge.dataset.share; save(); });
     document.querySelectorAll(".copy").forEach(b => b.addEventListener("click", () => {
       navigator.clipboard.writeText(b.previousElementSibling.textContent).then(() => {
         b.textContent = "Copied"; setTimeout(() => (b.textContent = "Copy"), 1500);

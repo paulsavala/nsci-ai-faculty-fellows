@@ -58,7 +58,7 @@ Each training page has an **Others' answers** sidebar on the right, collapsed by
 2. In the new `index.html`, change `id` (must be unique: it keeps each training's saved answers separate), `title`, `subtitle`, and the `sections` list.
 3. On the home page (`index.html` at the top level), copy a card and point it at the new folder.
 
-A training can also be a **task guide** like `claude-desktop-tasks/`. It has its own small engine in its `index.html` (it still uses `shared/workshop.css` and `shared/site-config.js`). Edit the `window.TASKS` block: topics hold either guide pages (`guide: true`, with text and screenshots from `img/`) or tasks (before-you-start checklist, steps with copyable prompts, tips, extras). "Mark as done" checkmarks are kept in each person's browser.
+A training can also be a **task guide** like `claude-desktop-tasks/`. It has its own small engine in its `index.html` (it still uses `shared/workshop.css` and `shared/site-config.js`). Edit the `window.TASKS` block: topics hold either guide pages (`guide: true`, with text and screenshots from `img/`) or tasks (before-you-start checklist, steps with copyable prompts, tips, extras). "Mark as done" checkmarks are kept in each person's browser. Its last page, **Share what you tried**, sends each entry to the same Google Sheet. Shared entries appear on that page (department only, no names); entries marked **Keep this private** are written with "private" in the **Hide** column and never shown.
 
 A training can be **slides only**. Leave out `youtubeId` and `activity` on its sections (see `ai-teaching-learning/index.html`): the page then hides the video blocks, the name and department fields, and the "others' answers" panel.
 

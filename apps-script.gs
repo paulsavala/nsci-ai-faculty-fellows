@@ -26,7 +26,8 @@ function doPost(e) {
       clean_(r.question),
       clean_(r.answer),
       clean_(data.sessionId),
-      clean_(r.questionId)
+      clean_(r.questionId),
+      data.private ? "private" : "" // fills the Hide column, so private answers are never shown to others
     ]);
     if (rows.length) {
       sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, rows[0].length).setValues(rows);
