@@ -1352,7 +1352,6 @@ window.TASKS = {
   function policyBody(t) {
     const ans = state.quizAnswers || {};
     return `
-      <div class="chips"><span class="chip">${t.time}</span></div>
       <h3 class="block">The policy in six points</h3>
       <div class="tips">${t.points.map(([h, b]) => `<div class="tip"><b>${h}</b>${b}</div>`).join("")}</div>
       <div class="callout" style="margin-top:16px">${t.note}</div>
@@ -1419,7 +1418,6 @@ window.TASKS = {
     const who = profile(), pre = state.sharePrefill;
     const ideas = all.filter(t => !t.guide && !t.policy && !t.share);
     return `
-      <div class="chips"><span class="chip">about 5 minutes</span></div>
       <div class="callout"><b>Shared answers are public.</b> What you write here (but not your name) is shown on this page, grouped by department, to anyone who visits this site. To keep an answer private, check <b>Keep this private</b> below: it will only be seen by Paul Savala.</div>
 
       <h3 class="block">Tell us how it went</h3>
@@ -1510,7 +1508,7 @@ window.TASKS = {
 
   function taskBody(t) {
     return `
-      <div class="chips">${(t.modes || []).map(m => CHIPS[m]).join("")}<span class="chip">${t.time}</span></div>
+      <div class="chips">${(t.modes || []).map(m => CHIPS[m]).join("")}</div>
 
       ${t.before && t.before.length ? `<h3 class="block">Before you start</h3>
       <div class="callout"><ul class="plain">${t.before.map(b => `<li>${b}</li>`).join("")}</ul></div>` : ""}
