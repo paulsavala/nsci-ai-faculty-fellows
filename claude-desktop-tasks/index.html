@@ -92,7 +92,7 @@
   .quiz-q.right .quiz-why { color: var(--green); }
   .quiz-q.wrong .quiz-why { color: var(--red); }
   .quiz-pass { background: #DCFCE7; color: #166534; font-weight: 700; border-radius: 12px; padding: 12px 16px; margin: 0 0 16px; }
-  .vid-tag { display: inline-block; vertical-align: 1px; white-space: nowrap; margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: #1E3A8A; color: #BFDBFE; font-size: 10px; letter-spacing: 0.5px; }
+  .vid-tag { display: inline-block; vertical-align: 1px; white-space: nowrap; margin: 3px 0 0; padding: 1px 7px; border-radius: 999px; background: #1E3A8A; color: #BFDBFE; font-size: 10px; letter-spacing: 0.5px; }
   .vid-dot { color: #93C5FD; font-size: 11px; }
   /* sharing page */
   .share-who { display: flex; gap: 16px; flex-wrap: wrap; }
@@ -1331,7 +1331,7 @@ window.TASKS = {
         const idx = i++, done = state.done.includes(t.id), lock = locked(idx);
         html += `<button class="sec-btn ${idx === current ? "active" : ""} ${done ? "done" : ""} ${lock ? "locked" : ""}" data-go="${idx}" ${lock ? "disabled" : ""}>
           <span class="num">${done ? "✓" : lock ? "🔒" : idx + 1}</span>
-          <span>${t.title}<span class="meta">${lock ? "pass the policy quiz first" : t.time || ""}${t.youtubeId ? ` <span class="vid-tag">▶ video</span>` : ""}</span></span></button>`;
+          <span>${t.title}${lock ? `<span class="meta">pass the policy quiz first</span>` : t.youtubeId ? `<span class="meta"><span class="vid-tag">▶ video</span></span>` : ""}</span></button>`;
       });
     });
     document.getElementById("nav").innerHTML = html;
